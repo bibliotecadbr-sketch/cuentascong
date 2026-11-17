@@ -103,7 +103,7 @@
         </div>
       </div>
 
-      <!-- Líneas de detalle (Formulario actual) -->
+      <!-- Líneas de detalle -->
       <div class="overflow-x-auto mb-4">
         <table class="w-full border-collapse border border-slate-300 text-sm">
           <thead class="bg-slate-100">
@@ -145,7 +145,7 @@
         </div>
       </div>
 
-      <!-- ================= SECCIÓN NUEVA: RESUMEN / HISTORIAL MENSUAL ================= -->
+      <!-- SECCIÓN: RESUMEN / HISTORIAL MENSUAL -->
       <div class="border-t-2 border-slate-800 pt-6 mt-6">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
           <div>
@@ -169,9 +169,7 @@
                 <th class="border border-slate-300 p-2 w-20 text-center no-print">Acción</th>
               </tr>
             </thead>
-            <tbody id="s24_historial_tbody">
-              <!-- Se llena dinámicamente -->
-            </tbody>
+            <tbody id="s24_historial_tbody"></tbody>
           </table>
         </div>
       </div>
@@ -634,7 +632,7 @@
         ],
         rellenado: '',
         verificado: '',
-        historial: [] // Almacena todas las transacciones guardadas del mes
+        historial: []
       },
       s26: {
         cong: '', ciudad: '', estado: '', mes: '', anio: '',
@@ -682,7 +680,7 @@
 
     // ================= S-24 LOGIC =================
     function renderS24() {
-      document.getElementById('s24_fecha').value = appData.s24.fecha || '';
+      document.getElementById('s24_fecha').value = appData.s24.fecha || new Date().toISOString().split('T')[0];
       document.getElementById('s24_rellenado').value = appData.s24.rellenado || '';
       document.getElementById('s24_verificado').value = appData.s24.verificado || '';
       document.querySelectorAll('input[name="s24_tipo"]').forEach(r => {
@@ -733,7 +731,7 @@
       document.getElementById('s24_total').textContent = fmt(total);
     }
 
-    // Guardar el formulario S-24 actual como una o varias transacciones en el historial del mes
+    // Guardar transacción y restablecer cantidades a 0 para la siguiente
     function guardarTransaccionEnHistorial() {
       guardarTodo();
       if (!appData.s24.historial) appData.s24.historial = [];
@@ -741,7 +739,6 @@
       const fecha = appData.s24.fecha;
       const tipo = appData.s24.tipo;
 
-      // Por cada línea con monto > 0, se registra en el historial
       let count = 0;
       appData.s24.filas.forEach(f => {
         if (parseFloat(f.monto) > 0) {
@@ -761,9 +758,14 @@
         return;
       }
 
+      // Restablecer las cantidades de las líneas del formulario actual a 0 (listas para la próxima)
+      appData.s24.filas.forEach(f => {
+        f.monto = 0;
+      });
+
       guardarTodo();
-      renderHistorialS24();
-      mostrarToast(`¡${count} transacción(es) guardada(s) en el historial!`);
+      renderS24(); // Refresca la vista limpiando los montos
+      mostrarToast(`¡${count} transacción(es) guardada(s) y formulario listo para la próxima!`);
     }
 
     function renderHistorialS24() {
@@ -814,7 +816,6 @@
       if (!appData.s24.historial[idx]) return;
       appData.s24.historial[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
       guardarTodo(false);
-      // Recalcular total visual
       let totalHist = appData.s24.historial.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
       document.getElementById('s24_historial_total').textContent = fmt(totalHist);
     }
@@ -1035,11 +1036,17 @@
     function limpiarModulo(mod) {
       if (!confirm('¿Deseas vaciar todos los campos de este formulario?')) return;
       if (mod === 's24') {
-        appData.s24.fecha = new Date().toISOString().split('T')[0];
-        appData.s24.tipo = 'Donación';
-        appData.s24.filas = [{ concepto: '', monto: 0 }];
-        appData.s24.rellenado = '';
-        appData.s24.verificado = '';
+        appData.s24 = {
+          fecha: new Date().toISOString().split('T')[0],
+          tipo: 'Donación',
+          filas: [
+            { concepto: 'Donaciones (Obra mundial)', monto: 0 },
+            { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
+          ],
+          rellenado: '',
+          verificado: '',
+          historial: appData.s24.historial // Mantiene el historial salvo que se borre completo
+        };
         renderS24();
       } else if (mod === 's26') {
         appData.s26 = { cong: '', ciudad: '', estado: '', mes: '', anio: '', sa_rec: 0, sa_pri: 0, sa_sec: 0, fin_mes: '', conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0, filas: [{ fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }] };
