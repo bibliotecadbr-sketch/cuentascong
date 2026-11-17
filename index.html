@@ -731,7 +731,7 @@
       document.getElementById('s24_total').textContent = fmt(total);
     }
 
-    // Guardar transacción y restablecer cantidades a 0 para la siguiente
+    // Guardar transacción y restablecer formulario a los conceptos por defecto con montos en 0
     function guardarTransaccionEnHistorial() {
       guardarTodo();
       if (!appData.s24.historial) appData.s24.historial = [];
@@ -758,14 +758,16 @@
         return;
       }
 
-      // Restablecer las cantidades de las líneas del formulario actual a 0 (listas para la próxima)
-      appData.s24.filas.forEach(f => {
-        f.monto = 0;
-      });
+      // Restablecer el formulario a su estado por defecto (conceptos iniciales y montos en 0)
+      appData.s24.filas = [
+        { concepto: 'Donaciones (Obra mundial)', monto: 0 },
+        { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
+      ];
+      appData.s24.tipo = 'Donación';
 
       guardarTodo();
-      renderS24(); // Refresca la vista limpiando los montos
-      mostrarToast(`¡${count} transacción(es) guardada(s) y formulario listo para la próxima!`);
+      renderS24(); // Refresca la vista con los valores por defecto
+      mostrarToast(`¡${count} transacción(es) guardada(s) y formulario restablecido!`);
     }
 
     function renderHistorialS24() {
@@ -1045,7 +1047,7 @@
           ],
           rellenado: '',
           verificado: '',
-          historial: appData.s24.historial // Mantiene el historial salvo que se borre completo
+          historial: appData.s24.historial
         };
         renderS24();
       } else if (mod === 's26') {
