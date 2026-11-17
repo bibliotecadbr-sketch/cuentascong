@@ -103,7 +103,7 @@
         </div>
       </div>
 
-      <!-- Líneas de detalle -->
+      <!-- Líneas de detalle (Formulario actual) -->
       <div class="overflow-x-auto mb-4">
         <table class="w-full border-collapse border border-slate-300 text-sm">
           <thead class="bg-slate-100">
@@ -124,14 +124,17 @@
         </table>
       </div>
 
-      <div class="mb-6 no-print">
+      <div class="flex flex-wrap justify-between items-center mb-6 no-print gap-2">
         <button onclick="agregarFilaS24()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
           + Agregar línea
+        </button>
+        <button onclick="guardarTransaccionEnHistorial()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded shadow transition">
+          💾 Guardar esta Transacción en el Historial Mensual
         </button>
       </div>
 
       <!-- Firmas -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 text-sm">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 text-sm mb-8">
         <div>
           <label class="block text-xs text-slate-500 mb-1">Rellenado por:</label>
           <input type="text" id="s24_rellenado" oninput="guardarTodo()" placeholder="Nombre y apellido" class="w-full border-b border-slate-400 px-2 py-1 focus:outline-none focus:border-blue-600" />
@@ -142,8 +145,39 @@
         </div>
       </div>
 
+      <!-- ================= SECCIÓN NUEVA: RESUMEN / HISTORIAL MENSUAL ================= -->
+      <div class="border-t-2 border-slate-800 pt-6 mt-6">
+        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
+          <div>
+            <h3 class="text-lg font-bold uppercase">Resumen / Historial Mensual de Transacciones (S-24-S)</h3>
+            <p class="text-xs text-slate-500">Todas las transacciones guardadas en el mes. Puede modificarlas o eliminarlas en cualquier momento.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-500 block">Total Acumulado del Mes:</span>
+            <span id="s24_historial_total" class="font-mono font-bold text-lg text-emerald-700">0.00</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse border border-slate-300 text-xs">
+            <thead class="bg-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="border border-slate-300 p-2 w-28 text-center">Fecha</th>
+                <th class="border border-slate-300 p-2 w-44">Tipo</th>
+                <th class="border border-slate-300 p-2">Concepto / Descripción</th>
+                <th class="border border-slate-300 p-2 w-32 text-right">Cantidad</th>
+                <th class="border border-slate-300 p-2 w-20 text-center no-print">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="s24_historial_tbody">
+              <!-- Se llena dinámicamente -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="mt-6 flex justify-end no-print">
-        <button onclick="limpiarModulo('s24')" class="text-xs text-red-600 hover:underline">Limpiar formulario S-24-S</button>
+        <button onclick="limpiarModulo('s24')" class="text-xs text-red-600 hover:underline">Limpiar formulario S-24-S actual</button>
       </div>
     </section>
 
@@ -158,7 +192,6 @@
         </div>
       </div>
 
-      <!-- Encabezado S-26 -->
       <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-5 text-sm">
         <div class="md:col-span-2">
           <label class="block text-xs text-slate-500">Congregación o circuito</label>
@@ -184,7 +217,6 @@
         </div>
       </div>
 
-      <!-- Saldos Anteriores -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 bg-slate-50 p-3 rounded border border-slate-200 text-xs">
         <div>
           <label class="font-bold block mb-1">Saldo anterior RECIBIDO:</label>
@@ -200,7 +232,6 @@
         </div>
       </div>
 
-      <!-- Tabla de Movimientos -->
       <div class="overflow-x-auto mb-3">
         <table class="w-full border-collapse border border-slate-400 text-xs">
           <thead>
@@ -244,9 +275,7 @@
         </button>
       </div>
 
-      <!-- Página 2 de S-26: Resumen y Conciliaciones -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t-2 border-slate-800 text-xs">
-        <!-- Resumen de la Hoja de Cuentas -->
         <div class="border border-slate-400 rounded p-3 bg-slate-50">
           <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Resumen de la Hoja de Cuentas</h3>
           <div class="mb-2 flex items-center gap-2">
@@ -294,7 +323,6 @@
           </table>
         </div>
 
-        <!-- Conciliación Cuenta Principal (Bancaria) -->
         <div class="border border-slate-400 rounded p-3">
           <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Conciliación Cuenta Principal (Bancaria)</h3>
           <div class="space-y-1.5">
@@ -359,7 +387,6 @@
         </div>
       </div>
 
-      <!-- Tabla de cálculos S-30 -->
       <div class="space-y-3 text-sm mb-8">
         <div class="flex justify-between items-center bg-slate-100 p-2.5 rounded font-semibold">
           <span>Fondos al comienzo del mes <span class="text-xs font-normal text-slate-500">(posición [i] del mes anterior)</span></span>
@@ -369,7 +396,6 @@
           </div>
         </div>
 
-        <!-- INGRESOS -->
         <div class="border border-slate-200 rounded p-3 space-y-2">
           <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider">Ingresos</h3>
           <div class="flex justify-between items-center pl-2">
@@ -403,7 +429,6 @@
           </div>
         </div>
 
-        <!-- DESEMBOLSOS -->
         <div class="border border-slate-200 rounded p-3 space-y-2">
           <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider">Desembolsos</h3>
           <div class="flex justify-between items-center pl-2">
@@ -437,7 +462,6 @@
           </div>
         </div>
 
-        <!-- RESUMEN FINAL -->
         <div class="border border-slate-300 rounded p-3 space-y-2 bg-slate-50">
           <div class="flex justify-between items-center">
             <span class="font-semibold">Superávit / Déficit [(d) - (g)]</span>
@@ -470,7 +494,6 @@
         </div>
       </div>
 
-      <!-- PÁGINA 2: ANUNCIO MENSUAL -->
       <div class="border-t-2 border-slate-800 pt-5 mt-6">
         <h3 class="text-base font-bold uppercase mb-2">Página 2 • Anuncio Mensual de las Cuentas</h3>
         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm leading-relaxed space-y-3">
@@ -601,7 +624,6 @@
   <script>
     const STORAGE_KEY = 'cuentas_congregacion_local_v1';
 
-    // Estado inicial por defecto
     let appData = {
       s24: {
         fecha: new Date().toISOString().split('T')[0],
@@ -611,7 +633,8 @@
           { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
         ],
         rellenado: '',
-        verificado: ''
+        verificado: '',
+        historial: [] // Almacena todas las transacciones guardadas del mes
       },
       s26: {
         cong: '', ciudad: '', estado: '', mes: '', anio: '',
@@ -634,7 +657,6 @@
       }
     };
 
-    // Utilidades
     const fmt = (n) => (parseFloat(n) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const num = (id) => parseFloat(document.getElementById(id)?.value) || 0;
 
@@ -645,7 +667,6 @@
       setTimeout(() => t.classList.add('opacity-0'), 2500);
     }
 
-    // Navegación entre módulos
     function cambiarModulo(mod) {
       document.querySelectorAll('.modulo').forEach(el => el.classList.add('hidden'));
       document.getElementById('mod-' + mod).classList.remove('hidden');
@@ -686,6 +707,7 @@
         tbody.appendChild(tr);
       });
       calcularS24();
+      renderHistorialS24();
     }
 
     function actualizarFilaS24(idx, campo, valor) {
@@ -709,6 +731,100 @@
     function calcularS24() {
       const total = appData.s24.filas.reduce((acc, f) => acc + (parseFloat(f.monto) || 0), 0);
       document.getElementById('s24_total').textContent = fmt(total);
+    }
+
+    // Guardar el formulario S-24 actual como una o varias transacciones en el historial del mes
+    function guardarTransaccionEnHistorial() {
+      guardarTodo();
+      if (!appData.s24.historial) appData.s24.historial = [];
+
+      const fecha = appData.s24.fecha;
+      const tipo = appData.s24.tipo;
+
+      // Por cada línea con monto > 0, se registra en el historial
+      let count = 0;
+      appData.s24.filas.forEach(f => {
+        if (parseFloat(f.monto) > 0) {
+          appData.s24.historial.push({
+            id: Date.now() + Math.random(),
+            fecha: fecha,
+            tipo: tipo,
+            concepto: f.concepto || 'Sin concepto',
+            monto: parseFloat(f.monto) || 0
+          });
+          count++;
+        }
+      });
+
+      if (count === 0) {
+        alert('Agregue al menos una línea con cantidad mayor a 0 para guardar.');
+        return;
+      }
+
+      guardarTodo();
+      renderHistorialS24();
+      mostrarToast(`¡${count} transacción(es) guardada(s) en el historial!`);
+    }
+
+    function renderHistorialS24() {
+      if (!appData.s24.historial) appData.s24.historial = [];
+      const tbody = document.getElementById('s24_historial_tbody');
+      tbody.innerHTML = '';
+
+      let totalHistorial = 0;
+
+      if (appData.s24.historial.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-400 italic">No hay transacciones guardadas en el mes todavía.</td></tr>`;
+        document.getElementById('s24_historial_total').textContent = '0.00';
+        return;
+      }
+
+      appData.s24.historial.forEach((item, idx) => {
+        totalHistorial += item.monto;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-slate-300 p-1.5 text-center">
+            <input type="date" value="${item.fecha}" onchange="actualizarHistorialItem(${idx}, 'fecha', this.value)" class="w-full bg-transparent px-1 text-center" />
+          </td>
+          <td class="border border-slate-300 p-1.5">
+            <select onchange="actualizarHistorialItem(${idx}, 'tipo', this.value)" class="w-full bg-transparent px-1">
+              <option value="Donación" ${item.tipo === 'Donación' ? 'selected' : ''}>Donación</option>
+              <option value="Pago" ${item.tipo === 'Pago' ? 'selected' : ''}>Pago</option>
+              <option value="Depósito en la caja de efectivo" ${item.tipo === 'Depósito en la caja de efectivo' ? 'selected' : ''}>Depósito en caja</option>
+              <option value="Adelanto de efectivo" ${item.tipo === 'Adelanto de efectivo' ? 'selected' : ''}>Adelanto de efectivo</option>
+            </select>
+          </td>
+          <td class="border border-slate-300 p-1.5">
+            <input type="text" value="${item.concepto}" oninput="actualizarHistorialItem(${idx}, 'concepto', this.value)" class="w-full bg-transparent px-1" />
+          </td>
+          <td class="border border-slate-300 p-1.5 text-right font-mono">
+            <input type="number" step="0.01" value="${item.monto}" oninput="actualizarHistorialItem(${idx}, 'monto', this.value)" class="w-full bg-transparent px-1 text-right font-mono" />
+          </td>
+          <td class="border border-slate-300 p-1.5 text-center no-print">
+            <button onclick="eliminarHistorialItem(${idx})" class="text-red-600 hover:text-red-800 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById('s24_historial_total').textContent = fmt(totalHistorial);
+    }
+
+    function actualizarHistorialItem(idx, campo, valor) {
+      if (!appData.s24.historial[idx]) return;
+      appData.s24.historial[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
+      guardarTodo(false);
+      // Recalcular total visual
+      let totalHist = appData.s24.historial.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
+      document.getElementById('s24_historial_total').textContent = fmt(totalHist);
+    }
+
+    function eliminarHistorialItem(idx) {
+      if (!confirm('¿Eliminar esta transacción del historial?')) return;
+      appData.s24.historial.splice(idx, 1);
+      renderHistorialS24();
+      guardarTodo();
+      mostrarToast('Transacción eliminada del historial');
     }
 
     // ================= S-26 LOGIC =================
@@ -837,7 +953,6 @@
       document.getElementById('s30_i').textContent = fmt(i);
       document.getElementById('s30_k').textContent = fmt(k);
 
-      // Actualizar anuncio automático
       const mesText = document.getElementById('s30_mes_anio').value.trim();
       document.getElementById('anuncio_mes').textContent = mesText || '________';
       document.getElementById('anuncio_b').textContent = fmt(b);
@@ -874,14 +989,12 @@
 
     // ================= PERSISTENCIA LOCAL =================
     function guardarTodo() {
-      // S-24
       appData.s24.fecha = document.getElementById('s24_fecha').value;
       appData.s24.rellenado = document.getElementById('s24_rellenado').value;
       appData.s24.verificado = document.getElementById('s24_verificado').value;
       const checkedTipo = document.querySelector('input[name="s24_tipo"]:checked');
       if (checkedTipo) appData.s24.tipo = checkedTipo.value;
 
-      // S-26
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes'].forEach(k => {
         appData.s26[k] = document.getElementById('s26_' + k).value;
       });
@@ -889,14 +1002,12 @@
         appData.s26[k] = document.getElementById(k).value;
       });
 
-      // S-30
       ['cong', 'mes_anio', 'a', 'ing_cajas', 'ing_elec', 'c', 'gas_salon', 'gas_res', 'f', 'j', 'chk1_val', 'chk2_val'].forEach(k => {
         appData.s30[k] = document.getElementById('s30_' + k).value;
       });
       appData.s30.chk1 = document.getElementById('s30_chk1').checked;
       appData.s30.chk2 = document.getElementById('s30_chk2').checked;
 
-      // S-44
       ['loc', 'mes_anio', 'a', 'b', 'c', 'f', 'siervo'].forEach(k => {
         appData.s44[k] = document.getElementById('s44_' + k).value;
       });
@@ -910,6 +1021,7 @@
         try {
           const parsed = JSON.parse(saved);
           appData = { ...appData, ...parsed };
+          if (!appData.s24.historial) appData.s24.historial = [];
         } catch (e) {
           console.error('Error leyendo datos locales', e);
         }
@@ -923,7 +1035,11 @@
     function limpiarModulo(mod) {
       if (!confirm('¿Deseas vaciar todos los campos de este formulario?')) return;
       if (mod === 's24') {
-        appData.s24 = { fecha: new Date().toISOString().split('T')[0], tipo: 'Donación', filas: [{ concepto: '', monto: 0 }], rellenado: '', verificado: '' };
+        appData.s24.fecha = new Date().toISOString().split('T')[0];
+        appData.s24.tipo = 'Donación';
+        appData.s24.filas = [{ concepto: '', monto: 0 }];
+        appData.s24.rellenado = '';
+        appData.s24.verificado = '';
         renderS24();
       } else if (mod === 's26') {
         appData.s26 = { cong: '', ciudad: '', estado: '', mes: '', anio: '', sa_rec: 0, sa_pri: 0, sa_sec: 0, fin_mes: '', conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0, filas: [{ fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }] };
@@ -939,7 +1055,6 @@
       mostrarToast('Formulario limpiado');
     }
 
-    // ================= EXPORTAR / IMPORTAR JSON =================
     function exportarDatos() {
       guardarTodo();
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
@@ -962,6 +1077,7 @@
           const imported = JSON.parse(e.target.result);
           if (imported.s24 && imported.s26 && imported.s30 && imported.s44) {
             appData = imported;
+            if (!appData.s24.historial) appData.s24.historial = [];
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             renderS24();
             renderS26();
@@ -979,7 +1095,6 @@
       event.target.value = '';
     }
 
-    // Inicializar al cargar
     window.addEventListener('DOMContentLoaded', cargarTodo);
   </script>
 </body>
