@@ -165,12 +165,12 @@
         </div>
       </div>
 
-      <!-- SECCIÓN: RESUMEN / HISTORIAL MENSUAL -->
+      <!-- SECCIÓN: RESUMEN / HISTORIAL MENSUAL S-24 -->
       <div class="border-t-2 border-slate-800 pt-6 mt-6">
         <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
           <div>
             <h3 class="text-lg font-bold uppercase">Resumen / Historial Mensual de Transacciones (S-24-S)</h3>
-            <p class="text-xs text-slate-500">Todas las transacciones guardadas en el mes. Puede modificarlas o eliminarlas en cualquier momento.</p>
+            <p class="text-xs text-slate-500">Todas las transacciones guardadas en el mes.</p>
           </div>
           <div class="text-right">
             <span class="text-xs text-slate-500 block">Total Acumulado del Mes:</span>
@@ -293,7 +293,31 @@
         </button>
       </div>
 
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t-2 border-slate-800 text-xs">
+      <!-- SECCIÓN NUEVA: RESUMEN / HISTORIAL MENSUAL S-26 -->
+      <div class="border-t-2 border-slate-800 pt-6 mt-6 no-print">
+        <h3 class="text-base font-bold uppercase mb-1">Resumen / Historial Mensual de Transacciones (S-26-S)</h3>
+        <p class="text-xs text-slate-500 mb-3">Historial detallado sincronizado con la Hoja de Cuentas superior.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse border border-slate-300 text-xs bg-slate-50">
+            <thead class="bg-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="border border-slate-300 p-1.5 w-24 text-center">Fecha</th>
+                <th class="border border-slate-300 p-1.5">Descripción</th>
+                <th class="border border-slate-300 p-1.5 w-16 text-center">CT</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Ent</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Sal</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Ent</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Sal</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Ent</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Sal</th>
+              </tr>
+            </thead>
+            <tbody id="s26_historial_tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-6 border-t-2 border-slate-800 text-xs">
         <div class="border border-slate-400 rounded p-3 bg-slate-50">
           <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Resumen de la Hoja de Cuentas</h3>
           <div class="mb-2 flex items-center gap-2">
@@ -503,7 +527,7 @@
             </div>
           </div>
           <div class="flex justify-between items-center bg-blue-100 p-2 rounded font-bold text-blue-950">
-            <span>FONDOS DE LA CONGREGACIÓN DISPONIBLES AL FINAL MES [(i) - (j)]</span>
+            <span>FONDOS DE LA CONGREGACIÓN DISPONIBLES AL FINAL DEL MES [(i) - (j)]</span>
             <div class="flex items-center gap-2">
               <span class="font-mono text-xs bg-blue-200 px-1.5 py-0.5 rounded">(k)</span>
               <span id="s30_k" class="w-32 text-right font-mono text-base">0.00</span>
@@ -640,8 +664,7 @@
   </main>
 
   <script>
-    // ================= CONFIGURACIÓN DE CONTRASEÑA =================
-    const PASSWORD_CORRECTA = '1234'; // Cambia '1234' por la contraseña que prefieras
+    const PASSWORD_CORRECTA = '1234';
 
     function verificarPassword(e) {
       e.preventDefault();
@@ -894,7 +917,6 @@
       const tbody = document.getElementById('s26_filas');
       tbody.innerHTML = '';
       d.filas.forEach((f, idx) => {
-        // Generar opciones del select para CT
         let optionsHtml = '';
         OPCIONES_CT.forEach(opt => {
           const selected = (f.ct === opt) ? 'selected' : '';
@@ -920,14 +942,45 @@
         `;
         tbody.appendChild(tr);
       });
+
       calcularS26();
       calcularConciliacion();
+      renderHistorialS26();
+    }
+
+    function renderHistorialS26() {
+      const d = appData.s26;
+      const tbody = document.getElementById('s26_historial_tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      if (d.filas.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="9" class="text-center p-3 text-slate-400 italic">No hay movimientos registrados.</td></tr>`;
+        return;
+      }
+
+      d.filas.forEach(f => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-slate-300 p-1 text-center font-mono">${f.fecha || '-'}</td>
+          <td class="border border-slate-300 p-1">${f.desc || '-'}</td>
+          <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${f.ct || '-'}</td>
+          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_in)}</td>
+          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_out)}</td>
+          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_in)}</td>
+          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_out)}</td>
+          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_in)}</td>
+          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_out)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
     }
 
     function actualizarFilaS26(idx, campo, valor) {
       const numericFields = ['rec_in', 'rec_out', 'pri_in', 'pri_out', 'sec_in', 'sec_out'];
       appData.s26.filas[idx][campo] = numericFields.includes(campo) ? (parseFloat(valor) || 0) : valor;
       calcularS26();
+      renderHistorialS26();
       guardarTodo(false);
     }
 
