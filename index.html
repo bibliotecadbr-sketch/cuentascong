@@ -256,7 +256,7 @@
             <tr class="bg-slate-200 text-center font-bold">
               <th rowspan="2" class="border border-slate-400 p-1.5 w-20">FECHA</th>
               <th rowspan="2" class="border border-slate-400 p-1.5 min-w-[180px]">DESCRIPCIÓN DE LA TRANSACCIÓN</th>
-              <th rowspan="2" class="border border-slate-400 p-1.5 w-12">CT</th>
+              <th rowspan="2" class="border border-slate-400 p-1.5 w-16">CT</th>
               <th colspan="2" class="border border-slate-400 p-1 bg-blue-50">RECIBIDO</th>
               <th colspan="2" class="border border-slate-400 p-1 bg-emerald-50">CUENTA PRINCIPAL</th>
               <th colspan="2" class="border border-slate-400 p-1 bg-amber-50">CUENTA SECUNDARIA</th>
@@ -666,7 +666,6 @@
       document.getElementById('input_password').focus();
     }
 
-    // Comprobar si ya inició sesión en esta pestaña del navegador
     window.addEventListener('DOMContentLoaded', () => {
       if (sessionStorage.getItem('sesion_activa') === 'true') {
         document.getElementById('pantalla-login').classList.add('hidden');
@@ -674,7 +673,6 @@
       }
     });
 
-    // ================= LÓGICA DE DATOS Y FORMULARIOS =================
     const STORAGE_KEY = 'cuentas_congregacion_local_v1';
 
     let appData = {
@@ -882,6 +880,7 @@
       mostrarToast('Transacción eliminada del historial');
     }
 
+    // ================= S-26 LOGIC (Con Select CT) =================
     function renderS26() {
       const d = appData.s26;
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes',
@@ -890,14 +889,28 @@
         if (el) el.value = d[k] ?? '';
       });
 
+      const opcionesCT = ['', 'G', 'H', 'L', 'D', 'C', 'T', 'OM', 'I', 'E', 'F', 'P'];
+
       const tbody = document.getElementById('s26_filas');
       tbody.innerHTML = '';
       d.filas.forEach((f, idx) => {
         const tr = document.createElement('tr');
+        
+        // Construir opciones del select CT
+        let selectOptions = '';
+        opcionesCT.forEach(opt => {
+          const selected = (f.ct === opt) ? 'selected' : '';
+          selectOptions += `<option value="${opt}" ${selected}>${opt}</option>`;
+        });
+
         tr.innerHTML = `
           <td class="border border-slate-400 p-0.5"><input type="text" value="${f.fecha}" placeholder="dd/mm" oninput="actualizarFilaS26(${idx}, 'fecha', this.value)" class="w-full px-1 py-0.5 text-center" /></td>
           <td class="border border-slate-400 p-0.5"><input type="text" value="${f.desc}" oninput="actualizarFilaS26(${idx}, 'desc', this.value)" class="w-full px-1 py-0.5" /></td>
-          <td class="border border-slate-400 p-0.5"><input type="text" value="${f.ct}" oninput="actualizarFilaS26(${idx}, 'ct', this.value)" class="w-full px-1 py-0.5 text-center uppercase" /></td>
+          <td class="border border-slate-400 p-0.5 text-center">
+            <select onchange="actualizarFilaS26(${idx}, 'ct', this.value)" class="w-full bg-transparent px-0.5 py-0.5 text-center uppercase font-semibold text-xs focus:outline-none focus:bg-white">
+              ${selectOptions}
+            </select>
+          </td>
           <td class="border border-slate-400 p-0.5 bg-blue-50/30"><input type="number" step="0.01" value="${f.rec_in}" oninput="actualizarFilaS26(${idx}, 'rec_in', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
           <td class="border border-slate-400 p-0.5 bg-blue-50/30"><input type="number" step="0.01" value="${f.rec_out}" oninput="actualizarFilaS26(${idx}, 'rec_out', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
           <td class="border border-slate-400 p-0.5 bg-emerald-50/30"><input type="number" step="0.01" value="${f.pri_in}" oninput="actualizarFilaS26(${idx}, 'pri_in', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
