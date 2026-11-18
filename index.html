@@ -503,7 +503,7 @@
             </div>
           </div>
           <div class="flex justify-between items-center bg-blue-100 p-2 rounded font-bold text-blue-950">
-            <span>FONDOS DE LA CONGREGACIÓN DISPONIBLES AL FINAL DEL MES [(i) - (j)]</span>
+            <span>FONDOS DE LA CONGREGACIÓN DISPONIBLES AL FINAL MES [(i) - (j)]</span>
             <div class="flex items-center gap-2">
               <span class="font-mono text-xs bg-blue-200 px-1.5 py-0.5 rounded">(k)</span>
               <span id="s30_k" class="w-32 text-right font-mono text-base">0.00</span>
@@ -880,7 +880,9 @@
       mostrarToast('Transacción eliminada del historial');
     }
 
-    // ================= S-26 LOGIC (Con Select CT) =================
+    // ================= S-26 LOGIC =================
+    const OPCIONES_CT = ['', 'C', 'OM', 'D', 'G', 'T', 'H', 'L', 'I', 'E', 'F', 'P'];
+
     function renderS26() {
       const d = appData.s26;
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes',
@@ -889,26 +891,23 @@
         if (el) el.value = d[k] ?? '';
       });
 
-      const opcionesCT = ['', 'G', 'H', 'L', 'D', 'C', 'T', 'OM', 'I', 'E', 'F', 'P'];
-
       const tbody = document.getElementById('s26_filas');
       tbody.innerHTML = '';
       d.filas.forEach((f, idx) => {
-        const tr = document.createElement('tr');
-        
-        // Construir opciones del select CT
-        let selectOptions = '';
-        opcionesCT.forEach(opt => {
+        // Generar opciones del select para CT
+        let optionsHtml = '';
+        OPCIONES_CT.forEach(opt => {
           const selected = (f.ct === opt) ? 'selected' : '';
-          selectOptions += `<option value="${opt}" ${selected}>${opt}</option>`;
+          optionsHtml += `<option value="${opt}" ${selected}>${opt === '' ? '--' : opt}</option>`;
         });
 
+        const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="border border-slate-400 p-0.5"><input type="text" value="${f.fecha}" placeholder="dd/mm" oninput="actualizarFilaS26(${idx}, 'fecha', this.value)" class="w-full px-1 py-0.5 text-center" /></td>
           <td class="border border-slate-400 p-0.5"><input type="text" value="${f.desc}" oninput="actualizarFilaS26(${idx}, 'desc', this.value)" class="w-full px-1 py-0.5" /></td>
           <td class="border border-slate-400 p-0.5 text-center">
-            <select onchange="actualizarFilaS26(${idx}, 'ct', this.value)" class="w-full bg-transparent px-0.5 py-0.5 text-center uppercase font-semibold text-xs focus:outline-none focus:bg-white">
-              ${selectOptions}
+            <select onchange="actualizarFilaS26(${idx}, 'ct', this.value)" class="w-full bg-transparent px-1 py-0.5 text-center font-bold text-blue-900 focus:outline-none">
+              ${optionsHtml}
             </select>
           </td>
           <td class="border border-slate-400 p-0.5 bg-blue-50/30"><input type="number" step="0.01" value="${f.rec_in}" oninput="actualizarFilaS26(${idx}, 'rec_in', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
@@ -1149,7 +1148,6 @@
             appData = imported;
             if (!appData.s24.historial) appData.s24.historial = [];
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
-            renderS24();
             renderS26();
             renderS30();
             renderS44();
