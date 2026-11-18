@@ -17,8 +17,25 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
+  <!-- ================= PANTALLA DE ACCESO / CONTRASEÑA ================= -->
+  <div id="pantalla-login" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center space-y-4">
+      <div class="inline-flex bg-blue-100 text-blue-800 p-3 rounded-full text-2xl mb-1">🔒</div>
+      <h2 class="text-xl font-bold text-slate-800">Acceso Restringido</h2>
+      <p class="text-xs text-slate-500">Ingrese la contraseña para acceder a la aplicación local de cuentas.</p>
+      
+      <form onsubmit="verificarPassword(event)" class="space-y-3 pt-2">
+        <input type="password" id="input_password" placeholder="Contraseña" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600" required autofocus />
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition text-sm">
+          Ingresar
+        </button>
+      </form>
+      <p id="error-login" class="text-xs text-red-600 hidden font-semibold">Contraseña incorrecta. Intente de nuevo.</p>
+    </div>
+  </div>
+
   <!-- Barra Superior y Navegación -->
-  <header class="bg-slate-900 text-white shadow-md no-print sticky top-0 z-50">
+  <header class="bg-slate-900 text-white shadow-md no-print sticky top-0 z-40">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-lg font-bold tracking-wide">Sistema Local de Cuentas</h1>
@@ -36,6 +53,9 @@
         </label>
         <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded font-medium transition">
           🖨 Imprimir / PDF
+        </button>
+        <button onclick="cerrarSesion()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded font-medium transition">
+          🔒 Bloquear
         </button>
       </div>
     </div>
@@ -620,6 +640,41 @@
   </main>
 
   <script>
+    // ================= CONFIGURACIÓN DE CONTRASEÑA =================
+    const PASSWORD_CORRECTA = '1234'; // Cambia '1234' por la contraseña que prefieras
+
+    function verificarPassword(e) {
+      e.preventDefault();
+      const val = document.getElementById('input_password').value;
+      const err = document.getElementById('error-login');
+      if (val === PASSWORD_CORRECTA) {
+        sessionStorage.setItem('sesion_activa', 'true');
+        document.getElementById('pantalla-login').classList.add('hidden');
+        cargarTodo();
+      } else {
+        err.classList.remove('hidden');
+        document.getElementById('input_password').value = '';
+        document.getElementById('input_password').focus();
+      }
+    }
+
+    function cerrarSesion() {
+      sessionStorage.removeItem('sesion_activa');
+      document.getElementById('input_password').value = '';
+      document.getElementById('error-login').classList.add('hidden');
+      document.getElementById('pantalla-login').classList.remove('hidden');
+      document.getElementById('input_password').focus();
+    }
+
+    // Comprobar si ya inició sesión en esta pestaña del navegador
+    window.addEventListener('DOMContentLoaded', () => {
+      if (sessionStorage.getItem('sesion_activa') === 'true') {
+        document.getElementById('pantalla-login').classList.add('hidden');
+        cargarTodo();
+      }
+    });
+
+    // ================= LÓGICA DE DATOS Y FORMULARIOS =================
     const STORAGE_KEY = 'cuentas_congregacion_local_v1';
 
     let appData = {
@@ -678,7 +733,6 @@
       activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-700');
     }
 
-    // ================= S-24 LOGIC =================
     function renderS24() {
       document.getElementById('s24_fecha').value = appData.s24.fecha || new Date().toISOString().split('T')[0];
       document.getElementById('s24_rellenado').value = appData.s24.rellenado || '';
@@ -731,7 +785,6 @@
       document.getElementById('s24_total').textContent = fmt(total);
     }
 
-    // Guardar transacción y restablecer formulario a los conceptos por defecto con montos en 0
     function guardarTransaccionEnHistorial() {
       guardarTodo();
       if (!appData.s24.historial) appData.s24.historial = [];
@@ -758,7 +811,6 @@
         return;
       }
 
-      // Restablecer el formulario a su estado por defecto (conceptos iniciales y montos en 0)
       appData.s24.filas = [
         { concepto: 'Donaciones (Obra mundial)', monto: 0 },
         { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
@@ -766,7 +818,7 @@
       appData.s24.tipo = 'Donación';
 
       guardarTodo();
-      renderS24(); // Refresca la vista con los valores por defecto
+      renderS24();
       mostrarToast(`¡${count} transacción(es) guardada(s) y formulario restablecido!`);
     }
 
@@ -830,7 +882,6 @@
       mostrarToast('Transacción eliminada del historial');
     }
 
-    // ================= S-26 LOGIC =================
     function renderS26() {
       const d = appData.s26;
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes',
@@ -922,7 +973,6 @@
       guardarTodo(false);
     }
 
-    // ================= S-30 LOGIC =================
     function renderS30() {
       const d = appData.s30;
       ['cong', 'mes_anio', 'a', 'ing_cajas', 'ing_elec', 'c', 'gas_salon', 'gas_res', 'f', 'j', 'chk1_val', 'chk2_val'].forEach(k => {
@@ -966,7 +1016,6 @@
       guardarTodo(false);
     }
 
-    // ================= S-44 LOGIC =================
     function renderS44() {
       const d = appData.s44;
       ['loc', 'mes_anio', 'a', 'b', 'c', 'f', 'siervo'].forEach(k => {
@@ -990,7 +1039,6 @@
       guardarTodo(false);
     }
 
-    // ================= PERSISTENCIA LOCAL =================
     function guardarTodo() {
       appData.s24.fecha = document.getElementById('s24_fecha').value;
       appData.s24.rellenado = document.getElementById('s24_rellenado').value;
@@ -1103,8 +1151,6 @@
       reader.readAsText(file);
       event.target.value = '';
     }
-
-    window.addEventListener('DOMContentLoaded', cargarTodo);
   </script>
 </body>
 </html>
