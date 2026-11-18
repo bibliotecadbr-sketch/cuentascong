@@ -293,72 +293,7 @@
         </button>
       </div>
 
-      <!-- HISTORIAL MENSUAL S-26 -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6 no-print">
-        <h3 class="text-base font-bold uppercase mb-1">Resumen / Historial Mensual de Transacciones (S-26-S)</h3>
-        <p class="text-xs text-slate-500 mb-3">Historial detallado sincronizado con la Hoja de Cuentas superior.</p>
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-slate-50">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 w-24 text-center">Fecha</th>
-                <th class="border border-slate-300 p-1.5">Descripción</th>
-                <th class="border border-slate-300 p-1.5 w-16 text-center">CT</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Ent</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Sal</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Ent</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Sal</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Ent</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Sal</th>
-              </tr>
-            </thead>
-            <tbody id="s26_historial_tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- ================= RESUMEN DE RESOLUCIONES ================= -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6">
-        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-          <div>
-            <h3 class="text-base font-bold uppercase">Resumen de Resoluciones y Contribuciones (S-26-S)</h3>
-            <p class="text-xs text-slate-500">Detalle y control de resoluciones y aportes especiales del mes.</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-500 block">Traspaso a la Sucursal:</span>
-            <span id="s26_res_total_monto" class="font-mono font-bold text-base text-blue-800">0.00</span>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto mb-3">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 text-left">Descripción</th>
-                <th class="border border-slate-300 p-1.5 w-36 text-right">Monto</th>
-                <th class="border border-slate-300 p-1.5 w-28 text-center">Código</th>
-                <th class="border border-slate-300 p-1.5 w-16 text-center no-print">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="s26_resoluciones_tbody"></tbody>
-            <tfoot>
-              <tr class="bg-blue-50 font-bold text-blue-950">
-                <td class="border border-slate-300 p-1.5 text-right">Traspaso a la Sucursal:</td>
-                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_res_pie_total">0.00</td>
-                <td colspan="2" class="border border-slate-300 p-1.5 no-print"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div class="no-print">
-          <button onclick="agregarResolucionS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
-            + Agregar resolución / item
-          </button>
-        </div>
-      </div>
-      <!-- =========================================================== -->
-
+      <!-- RESUMEN DE LA HOJA DE CUENTAS Y CONCILIACIÓN -->
       <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-6 border-t-2 border-slate-800 text-xs mt-6">
         <div class="border border-slate-400 rounded p-3 bg-slate-50">
           <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Resumen de la Hoja de Cuentas</h3>
@@ -443,6 +378,71 @@
               <span id="conc_b9" class="font-mono text-sm">0.00</span>
             </div>
           </div>
+        </div>
+      </div>
+
+      <!-- HISTORIAL MENSUAL S-26 -->
+      <div class="border-t-2 border-slate-800 pt-6 mt-6 no-print">
+        <h3 class="text-base font-bold uppercase mb-1">Resumen / Historial Mensual de Transacciones (S-26-S)</h3>
+        <p class="text-xs text-slate-500 mb-3">Historial detallado sincronizado con la Hoja de Cuentas superior.</p>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse border border-slate-300 text-xs bg-slate-50">
+            <thead class="bg-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="border border-slate-300 p-1.5 w-24 text-center">Fecha</th>
+                <th class="border border-slate-300 p-1.5">Descripción</th>
+                <th class="border border-slate-300 p-1.5 w-16 text-center">CT</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Ent</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Sal</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Ent</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Sal</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Ent</th>
+                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Sal</th>
+              </tr>
+            </thead>
+            <tbody id="s26_historial_tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RESUMEN DE RESOLUCIONES Y CONTRIBUCIONES (S-26-S) -->
+      <div class="border-t-2 border-slate-800 pt-6 mt-6">
+        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+          <div>
+            <h3 class="text-base font-bold uppercase">Resumen de Resoluciones y Contribuciones (S-26-S)</h3>
+            <p class="text-xs text-slate-500">Detalle y control de resoluciones y aportes especiales del mes.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-500 block">Traspaso a la Sucursal:</span>
+            <span id="s26_res_total_monto" class="font-mono font-bold text-base text-blue-800">0.00</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mb-3">
+          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
+            <thead class="bg-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="border border-slate-300 p-1.5 text-left">Descripción</th>
+                <th class="border border-slate-300 p-1.5 w-36 text-right">Monto</th>
+                <th class="border border-slate-300 p-1.5 w-28 text-center">Código</th>
+                <th class="border border-slate-300 p-1.5 w-16 text-center no-print">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="s26_resoluciones_tbody"></tbody>
+            <tfoot>
+              <tr class="bg-blue-50 font-bold text-blue-950">
+                <td class="border border-slate-300 p-1.5 text-right">Traspaso a la Sucursal:</td>
+                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_res_pie_total">0.00</td>
+                <td colspan="2" class="border border-slate-300 p-1.5 no-print"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="no-print">
+          <button onclick="agregarResolucionS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
+            + Agregar resolución / item
+          </button>
         </div>
       </div>
 
