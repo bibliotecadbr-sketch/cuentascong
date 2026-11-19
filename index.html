@@ -492,28 +492,40 @@
         <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
           <div>
             <h3 class="text-base font-bold uppercase">Subtotales resumen por Códigos (S-26-S)</h3>
-            <p class="text-xs text-slate-500">Suma automática según los códigos de la Hoja de Cuentas, editable y ampliable.</p>
+            <p class="text-xs text-slate-500">Suma automática separada por código para RECIBIDO y CUENTA PRINCIPAL.</p>
           </div>
           <div class="text-right">
-            <span class="text-xs text-slate-500 block">Total Códigos:</span>
+            <span class="text-xs text-slate-500 block">Total General Códigos:</span>
             <span id="s26_cod_total_general" class="font-mono font-bold text-base text-slate-900">0.00</span>
           </div>
         </div>
 
         <div class="overflow-x-auto mb-3">
           <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 w-36 text-center">Codigo</th>
-                <th class="border border-slate-300 p-1.5 text-right">Monto</th>
-                <th class="border border-slate-300 p-1.5 w-20 text-center no-print">Acción</th>
+            <thead>
+              <tr class="bg-slate-200 text-slate-700 font-bold text-center">
+                <th rowspan="2" class="border border-slate-300 p-1.5 w-24">Codigo</th>
+                <th colspan="2" class="border border-slate-300 p-1 bg-blue-50">RECIBIDO</th>
+                <th colspan="2" class="border border-slate-300 p-1 bg-emerald-50">CUENTA PRINCIPAL</th>
+                <th rowspan="2" class="border border-slate-300 p-1.5 w-28 text-right">Total</th>
+                <th rowspan="2" class="border border-slate-300 p-1.5 w-16 no-print">Acción</th>
+              </tr>
+              <tr class="bg-slate-100 text-slate-700 font-semibold text-center">
+                <th class="border border-slate-300 p-1 w-28 bg-blue-50/50">Entrada</th>
+                <th class="border border-slate-300 p-1 w-28 bg-blue-50/50">Salida</th>
+                <th class="border border-slate-300 p-1 w-28 bg-emerald-50/50">Entrada</th>
+                <th class="border border-slate-300 p-1 w-28 bg-emerald-50/50">Salida</th>
               </tr>
             </thead>
             <tbody id="s26_codigos_tbody"></tbody>
             <tfoot>
-              <tr class="bg-slate-100 font-bold">
-                <td class="border border-slate-300 p-1.5 text-right">TOTAL:</td>
-                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_cod_pie_monto">0.00</td>
+              <tr class="bg-slate-200 font-bold text-right font-mono">
+                <td class="border border-slate-300 p-1.5 text-left font-sans">TOTAL:</td>
+                <td class="border border-slate-300 p-1.5 bg-blue-50/60" id="s26_cod_tot_rec_in">0.00</td>
+                <td class="border border-slate-300 p-1.5 bg-blue-50/60" id="s26_cod_tot_rec_out">0.00</td>
+                <td class="border border-slate-300 p-1.5 bg-emerald-50/60" id="s26_cod_tot_pri_in">0.00</td>
+                <td class="border border-slate-300 p-1.5 bg-emerald-50/60" id="s26_cod_tot_pri_out">0.00</td>
+                <td class="border border-slate-300 p-1.5 text-blue-950" id="s26_cod_pie_monto">0.00</td>
                 <td class="border border-slate-300 p-1.5 no-print"></td>
               </tr>
             </tfoot>
@@ -831,8 +843,7 @@
 
     const CODIGOS_INICIALES = CODIGOS_LISTA.map(codigo => ({
       codigo: codigo,
-      ajuste: 0,
-      manual: false
+      ajuste: { rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0 }
     }));
 
     let appData = {
@@ -864,7 +875,10 @@
           { desc: 'Contribución Única (resolución)', monto: 0, tipo: 'cong' },
           { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
         ],
-        codigos: CODIGOS_INICIALES.map(item => ({ ...item }))
+        codigos: CODIGOS_INICIALES.map(item => ({
+          codigo: item.codigo,
+          ajuste: { ...item.ajuste }
+        }))
       },
       s30: {
         cong: '', mes_anio: '',
@@ -1262,48 +1276,80 @@
     }
 
     // ================= CÓDIGOS S-26 LOGIC =================
-    function obtenerSumaPorCodigo(codigo) {
-      const codTrim = (codigo || '').trim().toUpperCase();
-      if (!codTrim) return 0;
-      return (appData.s26.filas || []).reduce((acc, f) => {
-        if ((f.ct || '').trim().toUpperCase() === codTrim) {
-          const m = (parseFloat(f.rec_in) || 0) +
-                    (parseFloat(f.rec_out) || 0) +
-                    (parseFloat(f.pri_in) || 0) +
-                    (parseFloat(f.pri_out) || 0) +
-                    (parseFloat(f.sec_in) || 0) +
-                    (parseFloat(f.sec_out) || 0);
-          return acc + m;
-        }
-        return acc;
-      }, 0);
+    const CAMPOS_CODIGO = ['rec_in', 'rec_out', 'pri_in', 'pri_out'];
+
+    function normalizarItemCodigo(item) {
+      if (!item.ajuste || typeof item.ajuste !== 'object') {
+        item.ajuste = { rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0 };
+      }
+      CAMPOS_CODIGO.forEach(c => {
+        item.ajuste[c] = parseFloat(item.ajuste[c]) || 0;
+      });
+      return item;
     }
 
-    function obtenerMontoFilaCodigo(item) {
-      const autoSum = obtenerSumaPorCodigo(item.codigo);
-      const ajuste = parseFloat(item.ajuste) || 0;
-      return item.manual ? ajuste : (autoSum + ajuste);
+    function obtenerSumasAutoPorCodigo(codigo) {
+      const sums = { rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0 };
+      const codTrim = (codigo || '').trim().toUpperCase();
+      if (!codTrim) return sums;
+
+      (appData.s26.filas || []).forEach(f => {
+        if ((f.ct || '').trim().toUpperCase() === codTrim) {
+          CAMPOS_CODIGO.forEach(c => {
+            sums[c] += (parseFloat(f[c]) || 0);
+          });
+        }
+      });
+      return sums;
+    }
+
+    function obtenerValoresFilaCodigo(item) {
+      normalizarItemCodigo(item);
+      const auto = obtenerSumasAutoPorCodigo(item.codigo);
+      const vals = {};
+      let totalFila = 0;
+      CAMPOS_CODIGO.forEach(c => {
+        vals[c] = auto[c] + item.ajuste[c];
+        totalFila += vals[c];
+      });
+      vals.total = totalFila;
+      return vals;
     }
 
     function renderCodigosS26() {
       if (!appData.s26.codigos) {
-        appData.s26.codigos = CODIGOS_INICIALES.map(item => ({ ...item }));
+        appData.s26.codigos = CODIGOS_INICIALES.map(item => ({
+          codigo: item.codigo,
+          ajuste: { ...item.ajuste }
+        }));
       }
 
       const tbody = document.getElementById('s26_codigos_tbody');
       if (!tbody) return;
       tbody.innerHTML = '';
 
-      appData.s26.codigos.forEach((item, idx) => {
-        const montoMostrar = obtenerMontoFilaCodigo(item);
+      appData.s26.codigos.forEach((rawItem, idx) => {
+        const item = normalizarItemCodigo(rawItem);
+        const vals = obtenerValoresFilaCodigo(item);
+
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="border border-slate-300 p-1 text-center">
-            <input type="text" value="${item.codigo}" oninput="actualizarCodigoS26(${idx}, 'codigo', this.value)" class="w-full px-2 py-1 text-center font-bold text-blue-900 bg-transparent focus:outline-none uppercase" />
+            <input type="text" value="${item.codigo}" oninput="actualizarCodigoS26(${idx}, this.value)" class="w-full px-1.5 py-1 text-center font-bold text-blue-900 bg-transparent focus:outline-none uppercase" />
           </td>
-          <td class="border border-slate-300 p-1">
-            <input type="number" step="0.01" value="${montoMostrar}" oninput="actualizarMontoCodigoS26(${idx}, this.value)" class="w-full px-2 py-1 text-right font-mono bg-transparent focus:outline-none" />
+          <td class="border border-slate-300 p-1 bg-blue-50/20">
+            <input type="number" step="0.01" value="${vals.rec_in}" oninput="actualizarCampoCodigoS26(${idx}, 'rec_in', this.value)" class="w-full px-1.5 py-1 text-right font-mono bg-transparent focus:outline-none" />
           </td>
+          <td class="border border-slate-300 p-1 bg-blue-50/20">
+            <input type="number" step="0.01" value="${vals.rec_out}" oninput="actualizarCampoCodigoS26(${idx}, 'rec_out', this.value)" class="w-full px-1.5 py-1 text-right font-mono bg-transparent focus:outline-none" />
+          </td>
+          <td class="border border-slate-300 p-1 bg-emerald-50/20">
+            <input type="number" step="0.01" value="${vals.pri_in}" oninput="actualizarCampoCodigoS26(${idx}, 'pri_in', this.value)" class="w-full px-1.5 py-1 text-right font-mono bg-transparent focus:outline-none" />
+          </td>
+          <td class="border border-slate-300 p-1 bg-emerald-50/20">
+            <input type="number" step="0.01" value="${vals.pri_out}" oninput="actualizarCampoCodigoS26(${idx}, 'pri_out', this.value)" class="w-full px-1.5 py-1 text-right font-mono bg-transparent focus:outline-none" />
+          </td>
+          <td class="border border-slate-300 p-1.5 text-right font-mono font-bold text-slate-900" id="s26_cod_fila_tot_${idx}">${fmt(vals.total)}</td>
           <td class="border border-slate-300 p-1 text-center no-print">
             <button onclick="eliminarCodigoS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
           </td>
@@ -1316,36 +1362,48 @@
 
     function calcularCodigosS26() {
       if (!appData.s26.codigos) return;
-      const totMonto = appData.s26.codigos.reduce((acc, item) => acc + obtenerMontoFilaCodigo(item), 0);
+      const colTotals = { rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, total: 0 };
 
-      document.getElementById('s26_cod_total_general').textContent = fmt(totMonto);
-      document.getElementById('s26_cod_pie_monto').textContent = fmt(totMonto);
+      appData.s26.codigos.forEach((rawItem, idx) => {
+        const vals = obtenerValoresFilaCodigo(rawItem);
+        CAMPOS_CODIGO.forEach(c => colTotals[c] += vals[c]);
+        colTotals.total += vals.total;
+        const filaTotEl = document.getElementById(`s26_cod_fila_tot_${idx}`);
+        if (filaTotEl) filaTotEl.textContent = fmt(vals.total);
+      });
+
+      CAMPOS_CODIGO.forEach(c => {
+        const el = document.getElementById('s26_cod_tot_' + c);
+        if (el) el.textContent = fmt(colTotals[c]);
+      });
+
+      document.getElementById('s26_cod_total_general').textContent = fmt(colTotals.total);
+      document.getElementById('s26_cod_pie_monto').textContent = fmt(colTotals.total);
     }
 
-    function actualizarCodigoS26(idx, campo, valor) {
+    function actualizarCodigoS26(idx, valor) {
       if (!appData.s26.codigos[idx]) return;
-      appData.s26.codigos[idx][campo] = valor;
+      appData.s26.codigos[idx].codigo = valor;
       guardarTodo(false);
       renderCodigosS26();
     }
 
-    function actualizarMontoCodigoS26(idx, valor) {
-      const item = appData.s26.codigos[idx];
+    function actualizarCampoCodigoS26(idx, campo, valor) {
+      const item = normalizarItemCodigo(appData.s26.codigos[idx]);
       if (!item) return;
-      const nuevoMonto = parseFloat(valor) || 0;
-      const autoSum = obtenerSumaPorCodigo(item.codigo);
-      if (item.manual) {
-        item.ajuste = nuevoMonto;
-      } else {
-        item.ajuste = nuevoMonto - autoSum;
-      }
+      const nuevoValor = parseFloat(valor) || 0;
+      const auto = obtenerSumasAutoPorCodigo(item.codigo);
+      item.ajuste[campo] = nuevoValor - auto[campo];
       guardarTodo(false);
       calcularCodigosS26();
     }
 
     function agregarCodigoS26() {
       if (!appData.s26.codigos) appData.s26.codigos = [];
-      appData.s26.codigos.push({ codigo: '', ajuste: 0, manual: true });
+      appData.s26.codigos.push({
+        codigo: '',
+        ajuste: { rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0 }
+      });
       renderCodigosS26();
       guardarTodo(false);
     }
@@ -1531,7 +1589,12 @@
             appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
           }
           if (!appData.s26.codigos) {
-            appData.s26.codigos = CODIGOS_INICIALES.map(item => ({ ...item }));
+            appData.s26.codigos = CODIGOS_INICIALES.map(item => ({
+              codigo: item.codigo,
+              ajuste: { ...item.ajuste }
+            }));
+          } else {
+            appData.s26.codigos.forEach(item => normalizarItemCodigo(item));
           }
         } catch (e) {
           console.error('Error leyendo datos locales', e);
@@ -1568,7 +1631,10 @@
             { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
           ],
           desembolsos: DESEMBOLSOS_INICIALES.map(item => ({ ...item })),
-          codigos: CODIGOS_INICIALES.map(item => ({ ...item }))
+          codigos: CODIGOS_INICIALES.map(item => ({
+            codigo: item.codigo,
+            ajuste: { ...item.ajuste }
+          }))
         };
         renderS26();
       } else if (mod === 's30') {
@@ -1616,7 +1682,12 @@
               appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
             }
             if (!appData.s26.codigos) {
-              appData.s26.codigos = CODIGOS_INICIALES.map(item => ({ ...item }));
+              appData.s26.codigos = CODIGOS_INICIALES.map(item => ({
+                codigo: item.codigo,
+                ajuste: { ...item.ajuste }
+              }));
+            } else {
+              appData.s26.codigos.forEach(item => normalizarItemCodigo(item));
             }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             renderS26();
