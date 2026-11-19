@@ -1245,23 +1245,98 @@
 
       if (d.filas.length === 0) {
         tbody.innerHTML = `<tr><td colspan="9" class="text-center p-3 text-slate-400 italic">No hay movimientos registrados.</td></tr>`;
-        return;
+      } else {
+        d.filas.forEach(f => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="border border-slate-300 p-1 text-center font-mono">${f.fecha || '-'}</td>
+            <td class="border border-slate-300 p-1">${f.desc || '-'}</td>
+            <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${f.ct || '-'}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_in)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_out)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_in)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_out)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_in)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_out)}</td>
+          `;
+          tbody.appendChild(tr);
+        });
       }
 
-      d.filas.forEach(f => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border border-slate-300 p-1 text-center font-mono">${f.fecha || '-'}</td>
-          <td class="border border-slate-300 p-1">${f.desc || '-'}</td>
-          <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${f.ct || '-'}</td>
-          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_in)}</td>
-          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_out)}</td>
-          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_in)}</td>
-          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_out)}</td>
-          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_in)}</td>
-          <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_out)}</td>
-        `;
-        tbody.appendChild(tr);
+      // Fila para separar al final del resumen
+      const trSep = document.createElement('tr');
+      trSep.className = 'bg-slate-200/80 h-3';
+      trSep.innerHTML = `<td colspan="9" class="border border-slate-300 p-0.5"></td>`;
+      tbody.appendChild(trSep);
+
+      // Encabezado + filas no cero de Resumen de Resoluciones y Contribuciones (S-26-S)
+      const trEncRes = document.createElement('tr');
+      trEncRes.className = 'bg-blue-50 font-bold text-blue-950';
+      trEncRes.innerHTML = `
+        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
+        <td class="border border-slate-300 p-1">Traspaso a la Sucursal</td>
+        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+      `;
+      tbody.appendChild(trEncRes);
+
+      (d.resoluciones || []).forEach(r => {
+        const monto = parseFloat(r.monto) || 0;
+        if (monto !== 0) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="border border-slate-300 p-1 text-center font-mono">-</td>
+            <td class="border border-slate-300 p-1">${r.desc || '-'}</td>
+            <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${r.codigo || '-'}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(monto)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+          `;
+          tbody.appendChild(tr);
+        }
+      });
+
+      // Encabezado + filas no cero de Resumen de Fondos Contribuciones (S-26-S)
+      const trEncFc = document.createElement('tr');
+      trEncFc.className = 'bg-blue-50 font-bold text-blue-950';
+      trEncFc.innerHTML = `
+        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
+        <td class="border border-slate-300 p-1">Traspaso a la Sucursal</td>
+        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+      `;
+      tbody.appendChild(trEncFc);
+
+      (d.fondos_contrib || []).forEach(r => {
+        const monto = parseFloat(r.monto) || 0;
+        if (monto !== 0) {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td class="border border-slate-300 p-1 text-center font-mono">-</td>
+            <td class="border border-slate-300 p-1">${r.desc || '-'}</td>
+            <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${r.codigo || '-'}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(monto)}</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
+          `;
+          tbody.appendChild(tr);
+        }
       });
     }
 
@@ -1319,18 +1394,21 @@
       let totalRes = appData.s26.resoluciones.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
       document.getElementById('s26_res_total_monto').textContent = fmt(totalRes);
       document.getElementById('s26_res_pie_total').textContent = fmt(totalRes);
+      renderHistorialS26();
     }
 
     function agregarResolucionS26() {
       if (!appData.s26.resoluciones) appData.s26.resoluciones = [];
       appData.s26.resoluciones.push({ desc: '', monto: 0, codigo: '' });
       renderResolucionesS26();
+      renderHistorialS26();
       guardarTodo(false);
     }
 
     function eliminarResolucionS26(idx) {
       appData.s26.resoluciones.splice(idx, 1);
       renderResolucionesS26();
+      renderHistorialS26();
       guardarTodo(false);
       mostrarToast('Item de resolución eliminado');
     }
@@ -1386,18 +1464,21 @@
       let totalFc = appData.s26.fondos_contrib.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
       document.getElementById('s26_fc_total_monto').textContent = fmt(totalFc);
       document.getElementById('s26_fc_pie_total').textContent = fmt(totalFc);
+      renderHistorialS26();
     }
 
     function agregarFondoContribS26() {
       if (!appData.s26.fondos_contrib) appData.s26.fondos_contrib = [];
       appData.s26.fondos_contrib.push({ desc: '', monto: 0, codigo: '' });
       renderFondosContribS26();
+      renderHistorialS26();
       guardarTodo(false);
     }
 
     function eliminarFondoContribS26(idx) {
       appData.s26.fondos_contrib.splice(idx, 1);
       renderFondosContribS26();
+      renderHistorialS26();
       guardarTodo(false);
       mostrarToast('Item eliminado');
     }
