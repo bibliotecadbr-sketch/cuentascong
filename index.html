@@ -446,7 +446,7 @@
         </div>
       </div>
 
-      <!-- ================= RESUMEN DE GASTOS / DESEMBOLSOS (S-26-S) ================= -->
+      <!-- RESUMEN DE GASTOS / DESEMBOLSOS (S-26-S) -->
       <div class="border-t-2 border-slate-800 pt-6 mt-6">
         <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
           <div>
@@ -483,6 +483,46 @@
         <div class="no-print">
           <button onclick="agregarDesembolsoS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
             + Agregar gasto / desembolso
+          </button>
+        </div>
+      </div>
+
+      <!-- ================= SUBTOTALES RESUMEN POR CÓDIGOS (S-26-S) ================= -->
+      <div class="border-t-2 border-slate-800 pt-6 mt-6">
+        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+          <div>
+            <h3 class="text-base font-bold uppercase">Subtotales resumen por Códigos (S-26-S)</h3>
+            <p class="text-xs text-slate-500">Suma automática según los códigos de la Hoja de Cuentas, editable y ampliable.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-500 block">Total Códigos:</span>
+            <span id="s26_cod_total_general" class="font-mono font-bold text-base text-slate-900">0.00</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mb-3">
+          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
+            <thead class="bg-slate-200 text-slate-700 font-bold">
+              <tr>
+                <th class="border border-slate-300 p-1.5 w-36 text-center">Codigo</th>
+                <th class="border border-slate-300 p-1.5 text-right">Monto</th>
+                <th class="border border-slate-300 p-1.5 w-20 text-center no-print">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="s26_codigos_tbody"></tbody>
+            <tfoot>
+              <tr class="bg-slate-100 font-bold">
+                <td class="border border-slate-300 p-1.5 text-right">TOTAL:</td>
+                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_cod_pie_monto">0.00</td>
+                <td class="border border-slate-300 p-1.5 no-print"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="no-print">
+          <button onclick="agregarCodigoS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
+            + Agregar item
           </button>
         </div>
       </div>
@@ -787,6 +827,14 @@
       { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
     ];
 
+    const CODIGOS_LISTA = ['C', 'OM', 'D', 'G', 'T', 'H', 'L', 'I', 'E', 'F', 'P'];
+
+    const CODIGOS_INICIALES = CODIGOS_LISTA.map(codigo => ({
+      codigo: codigo,
+      ajuste: 0,
+      manual: false
+    }));
+
     let appData = {
       s24: {
         fecha: new Date().toISOString().split('T')[0],
@@ -815,7 +863,8 @@
         desembolsos: [
           { desc: 'Contribución Única (resolución)', monto: 0, tipo: 'cong' },
           { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
-        ]
+        ],
+        codigos: CODIGOS_INICIALES.map(item => ({ ...item }))
       },
       s30: {
         cong: '', mes_anio: '',
@@ -1046,6 +1095,7 @@
       renderHistorialS26();
       renderResolucionesS26();
       renderDesembolsosS26();
+      renderCodigosS26();
     }
 
     function renderHistorialS26() {
@@ -1211,11 +1261,108 @@
       mostrarToast('Item de desembolso eliminado');
     }
 
+    // ================= CÓDIGOS S-26 LOGIC =================
+    function obtenerSumaPorCodigo(codigo) {
+      const codTrim = (codigo || '').trim().toUpperCase();
+      if (!codTrim) return 0;
+      return (appData.s26.filas || []).reduce((acc, f) => {
+        if ((f.ct || '').trim().toUpperCase() === codTrim) {
+          const m = (parseFloat(f.rec_in) || 0) +
+                    (parseFloat(f.rec_out) || 0) +
+                    (parseFloat(f.pri_in) || 0) +
+                    (parseFloat(f.pri_out) || 0) +
+                    (parseFloat(f.sec_in) || 0) +
+                    (parseFloat(f.sec_out) || 0);
+          return acc + m;
+        }
+        return acc;
+      }, 0);
+    }
+
+    function obtenerMontoFilaCodigo(item) {
+      const autoSum = obtenerSumaPorCodigo(item.codigo);
+      const ajuste = parseFloat(item.ajuste) || 0;
+      return item.manual ? ajuste : (autoSum + ajuste);
+    }
+
+    function renderCodigosS26() {
+      if (!appData.s26.codigos) {
+        appData.s26.codigos = CODIGOS_INICIALES.map(item => ({ ...item }));
+      }
+
+      const tbody = document.getElementById('s26_codigos_tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      appData.s26.codigos.forEach((item, idx) => {
+        const montoMostrar = obtenerMontoFilaCodigo(item);
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-slate-300 p-1 text-center">
+            <input type="text" value="${item.codigo}" oninput="actualizarCodigoS26(${idx}, 'codigo', this.value)" class="w-full px-2 py-1 text-center font-bold text-blue-900 bg-transparent focus:outline-none uppercase" />
+          </td>
+          <td class="border border-slate-300 p-1">
+            <input type="number" step="0.01" value="${montoMostrar}" oninput="actualizarMontoCodigoS26(${idx}, this.value)" class="w-full px-2 py-1 text-right font-mono bg-transparent focus:outline-none" />
+          </td>
+          <td class="border border-slate-300 p-1 text-center no-print">
+            <button onclick="eliminarCodigoS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      calcularCodigosS26();
+    }
+
+    function calcularCodigosS26() {
+      if (!appData.s26.codigos) return;
+      const totMonto = appData.s26.codigos.reduce((acc, item) => acc + obtenerMontoFilaCodigo(item), 0);
+
+      document.getElementById('s26_cod_total_general').textContent = fmt(totMonto);
+      document.getElementById('s26_cod_pie_monto').textContent = fmt(totMonto);
+    }
+
+    function actualizarCodigoS26(idx, campo, valor) {
+      if (!appData.s26.codigos[idx]) return;
+      appData.s26.codigos[idx][campo] = valor;
+      guardarTodo(false);
+      renderCodigosS26();
+    }
+
+    function actualizarMontoCodigoS26(idx, valor) {
+      const item = appData.s26.codigos[idx];
+      if (!item) return;
+      const nuevoMonto = parseFloat(valor) || 0;
+      const autoSum = obtenerSumaPorCodigo(item.codigo);
+      if (item.manual) {
+        item.ajuste = nuevoMonto;
+      } else {
+        item.ajuste = nuevoMonto - autoSum;
+      }
+      guardarTodo(false);
+      calcularCodigosS26();
+    }
+
+    function agregarCodigoS26() {
+      if (!appData.s26.codigos) appData.s26.codigos = [];
+      appData.s26.codigos.push({ codigo: '', ajuste: 0, manual: true });
+      renderCodigosS26();
+      guardarTodo(false);
+    }
+
+    function eliminarCodigoS26(idx) {
+      appData.s26.codigos.splice(idx, 1);
+      renderCodigosS26();
+      guardarTodo(false);
+      mostrarToast('Item eliminado');
+    }
+
     function actualizarFilaS26(idx, campo, valor) {
       const numericFields = ['rec_in', 'rec_out', 'pri_in', 'pri_out', 'sec_in', 'sec_out'];
       appData.s26.filas[idx][campo] = numericFields.includes(campo) ? (parseFloat(valor) || 0) : valor;
       calcularS26();
       renderHistorialS26();
+      renderCodigosS26();
       guardarTodo(false);
     }
 
@@ -1383,6 +1530,9 @@
           if (!appData.s26.desembolsos) {
             appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
           }
+          if (!appData.s26.codigos) {
+            appData.s26.codigos = CODIGOS_INICIALES.map(item => ({ ...item }));
+          }
         } catch (e) {
           console.error('Error leyendo datos locales', e);
         }
@@ -1417,7 +1567,8 @@
             { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
             { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
           ],
-          desembolsos: DESEMBOLSOS_INICIALES.map(item => ({ ...item }))
+          desembolsos: DESEMBOLSOS_INICIALES.map(item => ({ ...item })),
+          codigos: CODIGOS_INICIALES.map(item => ({ ...item }))
         };
         renderS26();
       } else if (mod === 's30') {
@@ -1463,6 +1614,9 @@
             }
             if (!appData.s26.desembolsos) {
               appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
+            }
+            if (!appData.s26.codigos) {
+              appData.s26.codigos = CODIGOS_INICIALES.map(item => ({ ...item }));
             }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             renderS26();
