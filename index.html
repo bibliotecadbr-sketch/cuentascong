@@ -446,6 +446,54 @@
         </div>
       </div>
 
+      <!-- ================= RESUMEN DE GASTOS / DESEMBOLSOS (S-26-S) ================= -->
+      <div class="border-t-2 border-slate-800 pt-6 mt-6">
+        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+          <div>
+            <h3 class="text-base font-bold uppercase">Resumen de Gastos / Desembolsos (S-26-S)</h3>
+            <p class="text-xs text-slate-500">Clasificación de desembolsos y selección de categoría por ítem.</p>
+          </div>
+          <div class="text-right">
+            <span class="text-xs text-slate-500 block">Total Desembolsos:</span>
+            <span id="s26_des_total_general" class="font-mono font-bold text-base text-slate-900">0.00</span>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto mb-3">
+          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
+            <thead class="bg-slate-200 text-slate-700 font-bold text-center">
+              <tr>
+                <th class="border border-slate-300 p-1.5 text-left min-w-[200px]">DESEMBOLSOS</th>
+                <th class="border border-slate-300 p-1.5 w-28 text-right">Monto</th>
+                <th class="border border-slate-300 p-1.5 w-36 text-right bg-amber-50">Gastos de funcionamiento del Salón del Reino</th>
+                <th class="border border-slate-300 p-1.5 w-36 text-right bg-blue-50">GASTOS DE LA CONGREGACIÓN</th>
+                <th class="border border-slate-300 p-1.5 w-32 text-right bg-emerald-50">OTROS DESEMBOLSOS</th>
+                <th class="border border-slate-300 p-1.5 w-44 text-center no-print">Tipo de Gasto</th>
+                <th class="border border-slate-300 p-1.5 w-14 text-center no-print">Acción</th>
+              </tr>
+            </thead>
+            <tbody id="s26_desembolsos_tbody"></tbody>
+            <tfoot>
+              <tr class="bg-slate-100 font-bold text-right font-mono">
+                <td class="border border-slate-300 p-1.5 text-right font-sans">TOTALES:</td>
+                <td class="border border-slate-300 p-1.5" id="s26_des_pie_monto">0.00</td>
+                <td class="border border-slate-300 p-1.5 bg-amber-50/60" id="s26_des_pie_func">0.00</td>
+                <td class="border border-slate-300 p-1.5 bg-blue-50/60" id="s26_des_pie_cong">0.00</td>
+                <td class="border border-slate-300 p-1.5 bg-emerald-50/60" id="s26_des_pie_otros">0.00</td>
+                <td colspan="2" class="border border-slate-300 p-1.5 no-print"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="no-print">
+          <button onclick="agregarDesembolsoS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
+            + Agregar gasto / desembolso
+          </button>
+        </div>
+      </div>
+      <!-- =========================================================================== -->
+
       <div class="mt-6 flex justify-end no-print">
         <button onclick="limpiarModulo('s26')" class="text-xs text-red-600 hover:underline">Limpiar Hoja de Cuentas S-26-S</button>
       </div>
@@ -740,6 +788,11 @@
 
     const STORAGE_KEY = 'cuentas_congregacion_local_v1';
 
+    const DESEMBOLSOS_INICIALES = [
+      { desc: 'Contribución Única (resolución)', monto: 0, tipo: 'cong' },
+      { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
+    ];
+
     let appData = {
       s24: {
         fecha: new Date().toISOString().split('T')[0],
@@ -764,6 +817,10 @@
           { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
           { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
           { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
+        ],
+        desembolsos: [
+          { desc: 'Contribución Única (resolución)', monto: 0, tipo: 'cong' },
+          { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
         ]
       },
       s30: {
@@ -994,6 +1051,7 @@
       calcularConciliacion();
       renderHistorialS26();
       renderResolucionesS26();
+      renderDesembolsosS26();
     }
 
     function renderHistorialS26() {
@@ -1092,6 +1150,101 @@
       renderResolucionesS26();
       guardarTodo(false);
       mostrarToast('Item de resolución eliminado');
+    }
+
+    // ================= DESEMBOLSOS S-26 LOGIC =================
+    function renderDesembolsosS26() {
+      if (!appData.s26.desembolsos) {
+        appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
+      }
+
+      const tbody = document.getElementById('s26_desembolsos_tbody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      appData.s26.desembolsos.forEach((item, idx) => {
+        const m = parseFloat(item.monto) || 0;
+        const valFunc = item.tipo === 'func' ? m : 0;
+        const valCong = item.tipo === 'cong' ? m : 0;
+        const valOtros = item.tipo === 'otros' ? m : 0;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td class="border border-slate-300 p-1">
+            <input type="text" value="${item.desc}" oninput="actualizarDesembolsoS26(${idx}, 'desc', this.value)" class="w-full px-2 py-1 bg-transparent focus:outline-none" />
+          </td>
+          <td class="border border-slate-300 p-1">
+            <input type="number" step="0.01" value="${item.monto}" oninput="actualizarDesembolsoS26(${idx}, 'monto', this.value)" class="w-full px-2 py-1 text-right font-mono bg-transparent focus:outline-none" />
+          </td>
+          <td class="border border-slate-300 p-1.5 text-right font-mono bg-amber-50/40" id="s26_des_row_func_${idx}">${fmt(valFunc)}</td>
+          <td class="border border-slate-300 p-1.5 text-right font-mono bg-blue-50/40" id="s26_des_row_cong_${idx}">${fmt(valCong)}</td>
+          <td class="border border-slate-300 p-1.5 text-right font-mono bg-emerald-50/40" id="s26_des_row_otros_${idx}">${fmt(valOtros)}</td>
+          <td class="border border-slate-300 p-1 text-center no-print">
+            <select onchange="actualizarDesembolsoS26(${idx}, 'tipo', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-xs font-medium text-slate-700 focus:outline-none">
+              <option value="func" ${item.tipo === 'func' ? 'selected' : ''}>Gasto de funcionamiento</option>
+              <option value="cong" ${item.tipo === 'cong' ? 'selected' : ''}>Gasto de congregación</option>
+              <option value="otros" ${item.tipo === 'otros' ? 'selected' : ''}>Otros reembolsos / desembolsos</option>
+            </select>
+          </td>
+          <td class="border border-slate-300 p-1 text-center no-print">
+            <button onclick="eliminarDesembolsoS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      calcularDesembolsosS26();
+    }
+
+    function calcularDesembolsosS26() {
+      if (!appData.s26.desembolsos) return;
+      let totMonto = 0, totFunc = 0, totCong = 0, totOtros = 0;
+
+      appData.s26.desembolsos.forEach((item, idx) => {
+        const m = parseFloat(item.monto) || 0;
+        const valFunc = item.tipo === 'func' ? m : 0;
+        const valCong = item.tipo === 'cong' ? m : 0;
+        const valOtros = item.tipo === 'otros' ? m : 0;
+
+        totMonto += m;
+        totFunc += valFunc;
+        totCong += valCong;
+        totOtros += valOtros;
+
+        const elFunc = document.getElementById(`s26_des_row_func_${idx}`);
+        const elCong = document.getElementById(`s26_des_row_cong_${idx}`);
+        const elOtros = document.getElementById(`s26_des_row_otros_${idx}`);
+        if (elFunc) elFunc.textContent = fmt(valFunc);
+        if (elCong) elCong.textContent = fmt(valCong);
+        if (elOtros) elOtros.textContent = fmt(valOtros);
+      });
+
+      document.getElementById('s26_des_total_general').textContent = fmt(totMonto);
+      document.getElementById('s26_des_pie_monto').textContent = fmt(totMonto);
+      document.getElementById('s26_des_pie_func').textContent = fmt(totFunc);
+      document.getElementById('s26_des_pie_cong').textContent = fmt(totCong);
+      document.getElementById('s26_des_pie_otros').textContent = fmt(totOtros);
+    }
+
+    function actualizarDesembolsoS26(idx, campo, valor) {
+      if (!appData.s26.desembolsos[idx]) return;
+      appData.s26.desembolsos[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
+      guardarTodo(false);
+      calcularDesembolsosS26();
+    }
+
+    function agregarDesembolsoS26() {
+      if (!appData.s26.desembolsos) appData.s26.desembolsos = [];
+      appData.s26.desembolsos.push({ desc: '', monto: 0, tipo: 'cong' });
+      renderDesembolsosS26();
+      guardarTodo(false);
+    }
+
+    function eliminarDesembolsoS26(idx) {
+      appData.s26.desembolsos.splice(idx, 1);
+      renderDesembolsosS26();
+      guardarTodo(false);
+      mostrarToast('Item de desembolso eliminado');
     }
 
     function actualizarFilaS26(idx, campo, valor) {
@@ -1263,6 +1416,9 @@
               { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
             ];
           }
+          if (!appData.s26.desembolsos) {
+            appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
+          }
         } catch (e) {
           console.error('Error leyendo datos locales', e);
         }
@@ -1296,7 +1452,8 @@
             { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
             { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
             { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
-          ]
+          ],
+          desembolsos: DESEMBOLSOS_INICIALES.map(item => ({ ...item }))
         };
         renderS26();
       } else if (mod === 's30') {
@@ -1339,6 +1496,9 @@
                 { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
                 { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
               ];
+            }
+            if (!appData.s26.desembolsos) {
+              appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
             }
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             renderS26();
