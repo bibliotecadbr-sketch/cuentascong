@@ -17,25 +17,8 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col">
 
-  <!-- ================= PANTALLA DE ACCESO / CONTRASEÑA ================= -->
-  <div id="pantalla-login" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-8 max-w-sm w-full text-center space-y-4">
-      <div class="inline-flex bg-blue-100 text-blue-800 p-3 rounded-full text-2xl mb-1">🔒</div>
-      <h2 class="text-xl font-bold text-slate-800">Acceso Restringido</h2>
-      <p class="text-xs text-slate-500">Ingrese la contraseña para acceder a la aplicación local de cuentas.</p>
-      
-      <form onsubmit="verificarPassword(event)" class="space-y-3 pt-2">
-        <input type="password" id="input_password" placeholder="Contraseña" class="w-full border border-slate-300 rounded-lg px-3 py-2 text-center text-lg tracking-widest focus:outline-none focus:ring-2 focus:ring-blue-600" required autofocus />
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-2.5 rounded-lg transition text-sm">
-          Ingresar
-        </button>
-      </form>
-      <p id="error-login" class="text-xs text-red-600 hidden font-semibold">Contraseña incorrecta. Intente de nuevo.</p>
-    </div>
-  </div>
-
   <!-- Barra Superior y Navegación -->
-  <header class="bg-slate-900 text-white shadow-md no-print sticky top-0 z-40">
+  <header class="bg-slate-900 text-white shadow-md no-print sticky top-0 z-50">
     <div class="max-w-6xl mx-auto px-4 py-3 flex flex-wrap items-center justify-between gap-3">
       <div>
         <h1 class="text-lg font-bold tracking-wide">Sistema Local de Cuentas</h1>
@@ -53,9 +36,6 @@
         </label>
         <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded font-medium transition">
           🖨 Imprimir / PDF
-        </button>
-        <button onclick="cerrarSesion()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded font-medium transition">
-          🔒 Bloquear
         </button>
       </div>
     </div>
@@ -144,17 +124,14 @@
         </table>
       </div>
 
-      <div class="flex flex-wrap justify-between items-center mb-6 no-print gap-2">
+      <div class="mb-6 no-print">
         <button onclick="agregarFilaS24()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
           + Agregar línea
-        </button>
-        <button onclick="guardarTransaccionEnHistorial()" class="bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded shadow transition">
-          💾 Guardar esta Transacción en el Historial Mensual
         </button>
       </div>
 
       <!-- Firmas -->
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 text-sm mb-8">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-slate-200 text-sm">
         <div>
           <label class="block text-xs text-slate-500 mb-1">Rellenado por:</label>
           <input type="text" id="s24_rellenado" oninput="guardarTodo()" placeholder="Nombre y apellido" class="w-full border-b border-slate-400 px-2 py-1 focus:outline-none focus:border-blue-600" />
@@ -165,37 +142,8 @@
         </div>
       </div>
 
-      <!-- SECCIÓN: RESUMEN / HISTORIAL MENSUAL S-24 -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6">
-        <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-          <div>
-            <h3 class="text-lg font-bold uppercase">Resumen / Historial Mensual de Transacciones (S-24-S)</h3>
-            <p class="text-xs text-slate-500">Todas las transacciones guardadas en el mes.</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-500 block">Total Acumulado del Mes:</span>
-            <span id="s24_historial_total" class="font-mono font-bold text-lg text-emerald-700">0.00</span>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse border border-slate-300 text-xs">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-2 w-28 text-center">Fecha</th>
-                <th class="border border-slate-300 p-2 w-44">Tipo</th>
-                <th class="border border-slate-300 p-2">Concepto / Descripción</th>
-                <th class="border border-slate-300 p-2 w-32 text-right">Cantidad</th>
-                <th class="border border-slate-300 p-2 w-20 text-center no-print">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="s24_historial_tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
       <div class="mt-6 flex justify-end no-print">
-        <button onclick="limpiarModulo('s24')" class="text-xs text-red-600 hover:underline">Limpiar formulario S-24-S actual</button>
+        <button onclick="limpiarModulo('s24')" class="text-xs text-red-600 hover:underline">Limpiar formulario S-24-S</button>
       </div>
     </section>
 
@@ -210,6 +158,7 @@
         </div>
       </div>
 
+      <!-- Encabezado S-26 -->
       <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-5 text-sm">
         <div class="md:col-span-2">
           <label class="block text-xs text-slate-500">Congregación o circuito</label>
@@ -235,6 +184,7 @@
         </div>
       </div>
 
+      <!-- Saldos Anteriores -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4 bg-slate-50 p-3 rounded border border-slate-200 text-xs">
         <div>
           <label class="font-bold block mb-1">Saldo anterior RECIBIDO:</label>
@@ -250,13 +200,14 @@
         </div>
       </div>
 
+      <!-- Tabla de Movimientos -->
       <div class="overflow-x-auto mb-3">
         <table class="w-full border-collapse border border-slate-400 text-xs">
           <thead>
             <tr class="bg-slate-200 text-center font-bold">
               <th rowspan="2" class="border border-slate-400 p-1.5 w-20">FECHA</th>
               <th rowspan="2" class="border border-slate-400 p-1.5 min-w-[180px]">DESCRIPCIÓN DE LA TRANSACCIÓN</th>
-              <th rowspan="2" class="border border-slate-400 p-1.5 w-16">CT</th>
+              <th rowspan="2" class="border border-slate-400 p-1.5 w-12">CT</th>
               <th colspan="2" class="border border-slate-400 p-1 bg-blue-50">RECIBIDO</th>
               <th colspan="2" class="border border-slate-400 p-1 bg-emerald-50">CUENTA PRINCIPAL</th>
               <th colspan="2" class="border border-slate-400 p-1 bg-amber-50">CUENTA SECUNDARIA</th>
@@ -293,8 +244,9 @@
         </button>
       </div>
 
-      <!-- RESUMEN DE LA HOJA DE CUENTAS Y CONCILIACIÓN -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-6 border-t-2 border-slate-800 text-xs mt-6">
+      <!-- Página 2 de S-26: Resumen y Conciliaciones -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t-2 border-slate-800 text-xs">
+        <!-- Resumen de la Hoja de Cuentas -->
         <div class="border border-slate-400 rounded p-3 bg-slate-50">
           <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Resumen de la Hoja de Cuentas</h3>
           <div class="mb-2 flex items-center gap-2">
@@ -342,6 +294,7 @@
           </table>
         </div>
 
+        <!-- Conciliación Cuenta Principal (Bancaria) -->
         <div class="border border-slate-400 rounded p-3">
           <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Conciliación Cuenta Principal (Bancaria)</h3>
           <div class="space-y-1.5">
@@ -381,191 +334,6 @@
         </div>
       </div>
 
-      <!-- HISTORIAL MENSUAL S-26 -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6 no-print">
-        <h3 class="text-base font-bold uppercase mb-1">Resumen / Historial Mensual de Transacciones (S-26-S)</h3>
-        <p class="text-xs text-slate-500 mb-3">Historial detallado sincronizado con la Hoja de Cuentas superior.</p>
-        <div class="overflow-x-auto">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-slate-50">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 w-24 text-center">Fecha</th>
-                <th class="border border-slate-300 p-1.5">Descripción</th>
-                <th class="border border-slate-300 p-1.5 w-16 text-center">CT</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Ent</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Rec. Sal</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Ent</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Pr. Sal</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Ent</th>
-                <th class="border border-slate-300 p-1.5 w-24 text-right">Sec. Sal</th>
-              </tr>
-            </thead>
-            <tbody id="s26_historial_tbody"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <!-- RESUMEN DE RESOLUCIONES Y CONTRIBUCIONES (S-26-S) -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6">
-        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-          <div>
-            <h3 class="text-base font-bold uppercase">Resumen de Resoluciones y Contribuciones (S-26-S)</h3>
-            <p class="text-xs text-slate-500">Detalle y control de resoluciones y aportes especiales del mes.</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-500 block">Traspaso a la Sucursal:</span>
-            <span id="s26_res_total_monto" class="font-mono font-bold text-base text-blue-800">0.00</span>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto mb-3">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 text-left">Descripción</th>
-                <th class="border border-slate-300 p-1.5 w-36 text-right">Monto</th>
-                <th class="border border-slate-300 p-1.5 w-28 text-center">Código</th>
-                <th class="border border-slate-300 p-1.5 w-16 text-center no-print">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="s26_resoluciones_tbody"></tbody>
-            <tfoot>
-              <tr class="bg-blue-50 font-bold text-blue-950">
-                <td class="border border-slate-300 p-1.5 text-right">Traspaso a la Sucursal:</td>
-                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_res_pie_total">0.00</td>
-                <td colspan="2" class="border border-slate-300 p-1.5 no-print"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div class="no-print">
-          <button onclick="agregarResolucionS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
-            + Agregar resolución / item
-          </button>
-        </div>
-      </div>
-
-      <!-- RESUMEN DE FONDOS CONTRIBUCIONES (S-26-S) -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6">
-        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-          <div>
-            <h3 class="text-base font-bold uppercase">Resumen de Fondos Contribuciones (S-26-S)</h3>
-            <p class="text-xs text-slate-500">Detalle y control de fondos y contribuciones del mes.</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-500 block">Traspaso a la Sucursal:</span>
-            <span id="s26_fc_total_monto" class="font-mono font-bold text-base text-blue-800">0.00</span>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto mb-3">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 text-left">Descripción</th>
-                <th class="border border-slate-300 p-1.5 w-36 text-right">Monto</th>
-                <th class="border border-slate-300 p-1.5 w-28 text-center">Código</th>
-                <th class="border border-slate-300 p-1.5 w-16 text-center no-print">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="s26_fondos_contrib_tbody"></tbody>
-            <tfoot>
-              <tr class="bg-blue-50 font-bold text-blue-950">
-                <td class="border border-slate-300 p-1.5 text-right">Traspaso a la Sucursal:</td>
-                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_fc_pie_total">0.00</td>
-                <td colspan="2" class="border border-slate-300 p-1.5 no-print"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div class="no-print">
-          <button onclick="agregarFondoContribS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
-            + Agregar resolución / item
-          </button>
-        </div>
-      </div>
-
-      <!-- RESUMEN DE GASTOS / DESEMBOLSOS (S-26-S) -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6">
-        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-          <div>
-            <h3 class="text-base font-bold uppercase">Resumen de Gastos / Desembolsos (S-26-S)</h3>
-            <p class="text-xs text-slate-500">Detalle y control de gastos y desembolsos del mes.</p>
-          </div>
-          <div class="text-right">
-            <span class="text-xs text-slate-500 block">Total Desembolsos:</span>
-            <span id="s26_des_total_general" class="font-mono font-bold text-base text-slate-900">0.00</span>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto mb-3">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
-            <thead class="bg-slate-200 text-slate-700 font-bold">
-              <tr>
-                <th class="border border-slate-300 p-1.5 text-left">DESEMBOLSOS</th>
-                <th class="border border-slate-300 p-1.5 w-36 text-right">Monto</th>
-                <th class="border border-slate-300 p-1.5 w-52 text-center">Tipo de Gasto</th>
-                <th class="border border-slate-300 p-1.5 w-20 text-center no-print">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="s26_desembolsos_tbody"></tbody>
-            <tfoot>
-              <tr class="bg-slate-100 font-bold">
-                <td class="border border-slate-300 p-1.5 text-right">TOTAL:</td>
-                <td class="border border-slate-300 p-1.5 text-right font-mono" id="s26_des_pie_monto">0.00</td>
-                <td colspan="2" class="border border-slate-300 p-1.5 no-print"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div class="no-print">
-          <button onclick="agregarDesembolsoS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
-            + Agregar gasto / desembolso
-          </button>
-        </div>
-      </div>
-
-      <!-- SUBTOTALES RESUMEN POR CÓDIGOS (S-26-S) -->
-      <div class="border-t-2 border-slate-800 pt-6 mt-6">
-        <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
-          <div>
-            <h3 class="text-base font-bold uppercase">Subtotales resumen por Códigos (S-26-S)</h3>
-            <p class="text-xs text-slate-500">Conteo y suma automática por código para RECIBIDO (Entrada).</p>
-          </div>
-        </div>
-
-        <div class="overflow-x-auto mb-3">
-          <table class="w-full border-collapse border border-slate-300 text-xs bg-white">
-            <thead>
-              <tr class="bg-slate-200 text-slate-700 font-bold text-center">
-                <th class="border border-slate-300 p-1.5 w-28">Codigo</th>
-                <th class="border border-slate-300 p-1.5 w-36 bg-slate-100">N° de veces</th>
-                <th class="border border-slate-300 p-1.5 bg-blue-50 text-right">RECIBIDO (Entrada)</th>
-                <th class="border border-slate-300 p-1.5 w-20 no-print">Acción</th>
-              </tr>
-            </thead>
-            <tbody id="s26_codigos_tbody"></tbody>
-            <tfoot>
-              <tr class="bg-slate-200 font-bold font-mono">
-                <td class="border border-slate-300 p-1.5 text-left font-sans">TOTAL:</td>
-                <td class="border border-slate-300 p-1.5 text-center bg-slate-100" id="s26_cod_tot_veces">0</td>
-                <td class="border border-slate-300 p-1.5 text-right bg-blue-50/60" id="s26_cod_tot_rec_in">0.00</td>
-                <td class="border border-slate-300 p-1.5 no-print"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-
-        <div class="no-print">
-          <button onclick="agregarCodigoS26()" class="text-xs bg-blue-50 hover:bg-blue-100 text-blue-700 font-semibold px-3 py-1.5 rounded border border-blue-200">
-            + Agregar item
-          </button>
-        </div>
-      </div>
-
       <div class="mt-6 flex justify-end no-print">
         <button onclick="limpiarModulo('s26')" class="text-xs text-red-600 hover:underline">Limpiar Hoja de Cuentas S-26-S</button>
       </div>
@@ -591,8 +359,8 @@
         </div>
       </div>
 
-      <div class="space-y-4 text-sm mb-8">
-        <!-- Fondos al comienzo del mes (a) -->
+      <!-- Tabla de cálculos S-30 -->
+      <div class="space-y-3 text-sm mb-8">
         <div class="flex justify-between items-center bg-slate-100 p-2.5 rounded font-semibold">
           <span>Fondos al comienzo del mes <span class="text-xs font-normal text-slate-500">(posición [i] del mes anterior)</span></span>
           <div class="flex items-center gap-2">
@@ -601,13 +369,17 @@
           </div>
         </div>
 
-        <!-- INGRESOS (4 filas fijas editables) + OTROS INGRESOS (3 filas fijas editables) -->
-        <div class="border border-slate-200 rounded p-3 space-y-3">
-          <div>
-            <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider mb-2">Ingresos</h3>
-            <div id="s30_ingresos_lista" class="space-y-1.5"></div>
+        <!-- INGRESOS -->
+        <div class="border border-slate-200 rounded p-3 space-y-2">
+          <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider">Ingresos</h3>
+          <div class="flex justify-between items-center pl-2">
+            <span>Donaciones para la congregación (cajas)</span>
+            <input type="number" step="0.01" id="s30_ing_cajas" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono" value="0" />
           </div>
-
+          <div class="flex justify-between items-center pl-2">
+            <span>Donaciones para la congregación (transfs. electrónicas)</span>
+            <input type="number" step="0.01" id="s30_ing_elec" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono" value="0" />
+          </div>
           <div class="flex justify-between items-center bg-blue-50 p-2 rounded font-semibold">
             <span>Total recibido para la congregación</span>
             <div class="flex items-center gap-2">
@@ -615,19 +387,13 @@
               <span id="s30_b" class="w-32 text-right font-mono">0.00</span>
             </div>
           </div>
-
-          <div class="pt-2 border-t border-slate-200">
-            <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider mb-2">OTROS INGRESOS</h3>
-            <div id="s30_otros_ingresos_lista" class="space-y-1.5"></div>
-            <div class="flex justify-between items-center bg-slate-50 px-2 py-1.5 rounded font-semibold mt-2 border border-slate-200">
-              <span>Subtotal otros ingresos</span>
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">(c)</span>
-                <span id="s30_c" class="w-32 text-right font-mono">0.00</span>
-              </div>
+          <div class="flex justify-between items-center pl-2 pt-1">
+            <span>Otros ingresos: Donaciones para la obra mundial (cajas)</span>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">(c)</span>
+              <input type="number" step="0.01" id="s30_c" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono" value="0" />
             </div>
           </div>
-
           <div class="flex justify-between items-center bg-slate-100 p-2 rounded font-bold">
             <span>Total de ingresos [(b) + (c)]</span>
             <div class="flex items-center gap-2">
@@ -637,13 +403,17 @@
           </div>
         </div>
 
-        <!-- GASTOS DE LA CONGREGACIÓN (7 filas fijas editables) + OTROS DESEMBOLSOS (3 filas fijas editables) -->
-        <div class="border border-slate-200 rounded p-3 space-y-3">
-          <div>
-            <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider mb-2">GASTOS DE LA CONGREGACIÓN</h3>
-            <div id="s30_gastos_cong_lista" class="space-y-1.5"></div>
+        <!-- DESEMBOLSOS -->
+        <div class="border border-slate-200 rounded p-3 space-y-2">
+          <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider">Desembolsos</h3>
+          <div class="flex justify-between items-center pl-2">
+            <span>Gastos de funcionamiento del Salón del Reino</span>
+            <input type="number" step="0.01" id="s30_gas_salon" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono" value="0" />
           </div>
-
+          <div class="flex justify-between items-center pl-2">
+            <span>Resolución mensual para la obra mundial</span>
+            <input type="number" step="0.01" id="s30_gas_res" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono" value="0" />
+          </div>
           <div class="flex justify-between items-center bg-blue-50 p-2 rounded font-semibold">
             <span>Total de gastos de la congregación</span>
             <div class="flex items-center gap-2">
@@ -651,19 +421,13 @@
               <span id="s30_e" class="w-32 text-right font-mono">0.00</span>
             </div>
           </div>
-
-          <div class="pt-2 border-t border-slate-200">
-            <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider mb-2">OTROS DESEMBOLSOS</h3>
-            <div id="s30_otros_desembolsos_lista" class="space-y-1.5"></div>
-            <div class="flex justify-between items-center bg-slate-50 px-2 py-1.5 rounded font-semibold mt-2 border border-slate-200">
-              <span>Subtotal otros desembolsos</span>
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">(f)</span>
-                <span id="s30_f" class="w-32 text-right font-mono">0.00</span>
-              </div>
+          <div class="flex justify-between items-center pl-2 pt-1">
+            <span>Otros desembolsos: Donaciones para la obra mundial (cajas)</span>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">(f)</span>
+              <input type="number" step="0.01" id="s30_f" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono" value="0" />
             </div>
           </div>
-
           <div class="flex justify-between items-center bg-slate-100 p-2 rounded font-bold">
             <span>Total de desembolsos [(e) + (f)]</span>
             <div class="flex items-center gap-2">
@@ -673,8 +437,8 @@
           </div>
         </div>
 
-        <!-- BALANCE Y FONDOS RESERVADOS (2 filas fijas editables) -->
-        <div class="border border-slate-300 rounded p-3 space-y-2.5 bg-slate-50">
+        <!-- RESUMEN FINAL -->
+        <div class="border border-slate-300 rounded p-3 space-y-2 bg-slate-50">
           <div class="flex justify-between items-center">
             <span class="font-semibold">Superávit / Déficit [(d) - (g)]</span>
             <div class="flex items-center gap-2">
@@ -689,19 +453,13 @@
               <span id="s30_i" class="w-32 text-right font-mono text-base">0.00</span>
             </div>
           </div>
-
-          <div class="pt-2 border-t border-slate-300">
-            <h3 class="font-bold text-slate-700 uppercase text-xs tracking-wider mb-2">FONDOS DE LA CONGREGACIÓN RESERVADOS PARA PROPÓSITOS ESPECIALES</h3>
-            <div id="s30_fondos_reservados_lista" class="space-y-1.5"></div>
-            <div class="flex justify-between items-center bg-white px-2 py-1.5 rounded font-semibold mt-2 border border-slate-200">
-              <span>Total de fondos de la congregación reservados para propósitos especiales</span>
-              <div class="flex items-center gap-2">
-                <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">(j)</span>
-                <span id="s30_j" class="w-32 text-right font-mono">0.00</span>
-              </div>
+          <div class="flex justify-between items-center pt-1">
+            <span>Total de fondos de la congregación reservados para propósitos especiales</span>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-xs bg-slate-200 px-1.5 py-0.5 rounded">(j)</span>
+              <input type="number" step="0.01" id="s30_j" oninput="calcularS30()" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono bg-white" value="0" />
             </div>
           </div>
-
           <div class="flex justify-between items-center bg-blue-100 p-2 rounded font-bold text-blue-950">
             <span>FONDOS DE LA CONGREGACIÓN DISPONIBLES AL FINAL DEL MES [(i) - (j)]</span>
             <div class="flex items-center gap-2">
@@ -712,6 +470,7 @@
         </div>
       </div>
 
+      <!-- PÁGINA 2: ANUNCIO MENSUAL -->
       <div class="border-t-2 border-slate-800 pt-5 mt-6">
         <h3 class="text-base font-bold uppercase mb-2">Página 2 • Anuncio Mensual de las Cuentas</h3>
         <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm leading-relaxed space-y-3">
@@ -840,140 +599,9 @@
   </main>
 
   <script>
-    const PASSWORD_CORRECTA = '1234';
-
-    function verificarPassword(e) {
-      e.preventDefault();
-      const val = document.getElementById('input_password').value;
-      const err = document.getElementById('error-login');
-      if (val === PASSWORD_CORRECTA) {
-        sessionStorage.setItem('sesion_activa', 'true');
-        document.getElementById('pantalla-login').classList.add('hidden');
-        cargarTodo();
-      } else {
-        err.classList.remove('hidden');
-        document.getElementById('input_password').value = '';
-        document.getElementById('input_password').focus();
-      }
-    }
-
-    function cerrarSesion() {
-      sessionStorage.removeItem('sesion_activa');
-      document.getElementById('input_password').value = '';
-      document.getElementById('error-login').classList.add('hidden');
-      document.getElementById('pantalla-login').classList.remove('hidden');
-      document.getElementById('input_password').focus();
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      if (sessionStorage.getItem('sesion_activa') === 'true') {
-        document.getElementById('pantalla-login').classList.add('hidden');
-        cargarTodo();
-      }
-    });
-
     const STORAGE_KEY = 'cuentas_congregacion_local_v1';
 
-    const FONDOS_CONTRIB_INICIALES = [
-      { desc: 'Fondos depositados en la sucursal', monto: 0, codigo: '' }
-    ];
-
-    const DESEMBOLSOS_INICIALES = [
-      { desc: 'Contribución Única (resolución)', monto: 0, tipo: 'cong' },
-      { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
-    ];
-
-    const CODIGOS_LISTA = ['C', 'OM', 'D', 'G', 'T', 'H', 'L', 'I', 'E', 'F', 'P'];
-
-    const CODIGOS_INICIALES = CODIGOS_LISTA.map(codigo => ({
-      codigo: codigo,
-      ajuste: { veces: 0, rec_in: 0 }
-    }));
-
-    const S30_SECCIONES_FIJAS = {
-      ingresos: {
-        cantidad: 4,
-        defaults: [
-          'Donaciones para la congregación (cajas)',
-          'Donaciones para la congregación (transfs. electrónicas)',
-          'Ingreso de la congregación 3',
-          'Ingreso de la congregación 4'
-        ]
-      },
-      otros_ingresos: {
-        cantidad: 3,
-        defaults: [
-          'Donaciones para la obra mundial (cajas)',
-          'Otro ingreso 2',
-          'Otro ingreso 3'
-        ]
-      },
-      gastos_cong: {
-        cantidad: 7,
-        defaults: [
-          'Gastos de funcionamiento del Salón del Reino',
-          'Resolución mensual para la obra mundial',
-          'Gasto de la congregación 3',
-          'Gasto de la congregación 4',
-          'Gasto de la congregación 5',
-          'Gasto de la congregación 6',
-          'Gasto de la congregación 7'
-        ]
-      },
-      otros_desembolsos: {
-        cantidad: 3,
-        defaults: [
-          'Donaciones para la obra mundial (cajas)',
-          'Otro desembolso 2',
-          'Otro desembolso 3'
-        ]
-      },
-      fondos_reservados: {
-        cantidad: 2,
-        defaults: [
-          'Fondo reservado para propósito especial 1',
-          'Fondo reservado para propósito especial 2'
-        ]
-      }
-    };
-
-    function crearS30Inicial() {
-      const data = {
-        cong: '',
-        mes_anio: '',
-        a: 0,
-        chk1: false,
-        chk1_val: '',
-        chk2: false,
-        chk2_val: ''
-      };
-      Object.keys(S30_SECCIONES_FIJAS).forEach(sec => {
-        data[sec] = S30_SECCIONES_FIJAS[sec].defaults.map(texto => ({ texto, monto: 0 }));
-      });
-      return data;
-    }
-
-    function asegurarEstructuraS30(d) {
-      const base = crearS30Inicial();
-      if (!d || typeof d !== 'object') return base;
-      const merged = { ...base, ...d };
-      Object.keys(S30_SECCIONES_FIJAS).forEach(sec => {
-        const cant = S30_SECCIONES_FIJAS[sec].cantidad;
-        const defs = S30_SECCIONES_FIJAS[sec].defaults;
-        const actual = Array.isArray(merged[sec]) ? merged[sec] : [];
-        const ajustado = [];
-        for (let i = 0; i < cant; i++) {
-          const item = actual[i] || {};
-          ajustado.push({
-            texto: item.texto ?? defs[i],
-            monto: parseFloat(item.monto) || 0
-          });
-        }
-        merged[sec] = ajustado;
-      });
-      return merged;
-    }
-
+    // Estado inicial por defecto
     let appData = {
       s24: {
         fecha: new Date().toISOString().split('T')[0],
@@ -983,8 +611,7 @@
           { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
         ],
         rellenado: '',
-        verificado: '',
-        historial: []
+        verificado: ''
       },
       s26: {
         cong: '', ciudad: '', estado: '', mes: '', anio: '',
@@ -993,29 +620,21 @@
         conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0,
         filas: [
           { fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }
-        ],
-        resoluciones: [
-          { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
-          { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
-          { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
-        ],
-        fondos_contrib: FONDOS_CONTRIB_INICIALES.map(item => ({ ...item })),
-        desembolsos: [
-          { desc: 'Contribución Única (resolución)', monto: 0, tipo: 'cong' },
-          { desc: 'Resolución mensual para la Obra mundial', monto: 0, tipo: 'cong' }
-        ],
-        codigos: CODIGOS_INICIALES.map(item => ({
-          codigo: item.codigo,
-          ajuste: { ...item.ajuste }
-        }))
+        ]
       },
-      s30: crearS30Inicial(),
+      s30: {
+        cong: '', mes_anio: '',
+        a: 0, ing_cajas: 0, ing_elec: 0, c: 0,
+        gas_salon: 0, gas_res: 0, f: 0, j: 0,
+        chk1: false, chk1_val: '', chk2: false, chk2_val: ''
+      },
       s44: {
         loc: '', mes_anio: '',
         a: 0, b: 0, c: 0, f: 0, siervo: ''
       }
     };
 
+    // Utilidades
     const fmt = (n) => (parseFloat(n) || 0).toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const num = (id) => parseFloat(document.getElementById(id)?.value) || 0;
 
@@ -1026,6 +645,7 @@
       setTimeout(() => t.classList.add('opacity-0'), 2500);
     }
 
+    // Navegación entre módulos
     function cambiarModulo(mod) {
       document.querySelectorAll('.modulo').forEach(el => el.classList.add('hidden'));
       document.getElementById('mod-' + mod).classList.remove('hidden');
@@ -1039,8 +659,9 @@
       activeBtn.classList.remove('text-slate-300', 'hover:bg-slate-700');
     }
 
+    // ================= S-24 LOGIC =================
     function renderS24() {
-      document.getElementById('s24_fecha').value = appData.s24.fecha || new Date().toISOString().split('T')[0];
+      document.getElementById('s24_fecha').value = appData.s24.fecha || '';
       document.getElementById('s24_rellenado').value = appData.s24.rellenado || '';
       document.getElementById('s24_verificado').value = appData.s24.verificado || '';
       document.querySelectorAll('input[name="s24_tipo"]').forEach(r => {
@@ -1065,7 +686,6 @@
         tbody.appendChild(tr);
       });
       calcularS24();
-      renderHistorialS24();
     }
 
     function actualizarFilaS24(idx, campo, valor) {
@@ -1091,106 +711,7 @@
       document.getElementById('s24_total').textContent = fmt(total);
     }
 
-    function guardarTransaccionEnHistorial() {
-      guardarTodo();
-      if (!appData.s24.historial) appData.s24.historial = [];
-
-      const fecha = appData.s24.fecha;
-      const tipo = appData.s24.tipo;
-
-      let count = 0;
-      appData.s24.filas.forEach(f => {
-        if (parseFloat(f.monto) > 0) {
-          appData.s24.historial.push({
-            id: Date.now() + Math.random(),
-            fecha: fecha,
-            tipo: tipo,
-            concepto: f.concepto || 'Sin concepto',
-            monto: parseFloat(f.monto) || 0
-          });
-          count++;
-        }
-      });
-
-      if (count === 0) {
-        alert('Agregue al menos una línea con cantidad mayor a 0 para guardar.');
-        return;
-      }
-
-      appData.s24.filas = [
-        { concepto: 'Donaciones (Obra mundial)', monto: 0 },
-        { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
-      ];
-      appData.s24.tipo = 'Donación';
-
-      guardarTodo();
-      renderS24();
-      mostrarToast(`¡${count} transacción(es) guardada(s) y formulario restablecido!`);
-    }
-
-    function renderHistorialS24() {
-      if (!appData.s24.historial) appData.s24.historial = [];
-      const tbody = document.getElementById('s24_historial_tbody');
-      tbody.innerHTML = '';
-
-      let totalHistorial = 0;
-
-      if (appData.s24.historial.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="5" class="text-center p-4 text-slate-400 italic">No hay transacciones guardadas en el mes todavía.</td></tr>`;
-        document.getElementById('s24_historial_total').textContent = '0.00';
-        return;
-      }
-
-      appData.s24.historial.forEach((item, idx) => {
-        totalHistorial += item.monto;
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border border-slate-300 p-1.5 text-center">
-            <input type="date" value="${item.fecha}" onchange="actualizarHistorialItem(${idx}, 'fecha', this.value)" class="w-full bg-transparent px-1 text-center" />
-          </td>
-          <td class="border border-slate-300 p-1.5">
-            <select onchange="actualizarHistorialItem(${idx}, 'tipo', this.value)" class="w-full bg-transparent px-1">
-              <option value="Donación" ${item.tipo === 'Donación' ? 'selected' : ''}>Donación</option>
-              <option value="Pago" ${item.tipo === 'Pago' ? 'selected' : ''}>Pago</option>
-              <option value="Depósito en la caja de efectivo" ${item.tipo === 'Depósito en la caja de efectivo' ? 'selected' : ''}>Depósito en caja</option>
-              <option value="Adelanto de efectivo" ${item.tipo === 'Adelanto de efectivo' ? 'selected' : ''}>Adelanto de efectivo</option>
-            </select>
-          </td>
-          <td class="border border-slate-300 p-1.5">
-            <input type="text" value="${item.concepto}" oninput="actualizarHistorialItem(${idx}, 'concepto', this.value)" class="w-full bg-transparent px-1" />
-          </td>
-          <td class="border border-slate-300 p-1.5 text-right font-mono">
-            <input type="number" step="0.01" value="${item.monto}" oninput="actualizarHistorialItem(${idx}, 'monto', this.value)" class="w-full bg-transparent px-1 text-right font-mono" />
-          </td>
-          <td class="border border-slate-300 p-1.5 text-center no-print">
-            <button onclick="eliminarHistorialItem(${idx})" class="text-red-600 hover:text-red-800 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('s24_historial_total').textContent = fmt(totalHistorial);
-    }
-
-    function actualizarHistorialItem(idx, campo, valor) {
-      if (!appData.s24.historial[idx]) return;
-      appData.s24.historial[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
-      guardarTodo(false);
-      let totalHist = appData.s24.historial.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
-      document.getElementById('s24_historial_total').textContent = fmt(totalHist);
-    }
-
-    function eliminarHistorialItem(idx) {
-      if (!confirm('¿Eliminar esta transacción del historial?')) return;
-      appData.s24.historial.splice(idx, 1);
-      renderHistorialS24();
-      guardarTodo();
-      mostrarToast('Transacción eliminada del historial');
-    }
-
     // ================= S-26 LOGIC =================
-    const OPCIONES_CT = ['', 'C', 'OM', 'D', 'G', 'T', 'H', 'L', 'I', 'E', 'F', 'P'];
-
     function renderS26() {
       const d = appData.s26;
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes',
@@ -1202,21 +723,11 @@
       const tbody = document.getElementById('s26_filas');
       tbody.innerHTML = '';
       d.filas.forEach((f, idx) => {
-        let optionsHtml = '';
-        OPCIONES_CT.forEach(opt => {
-          const selected = (f.ct === opt) ? 'selected' : '';
-          optionsHtml += `<option value="${opt}" ${selected}>${opt === '' ? '--' : opt}</option>`;
-        });
-
         const tr = document.createElement('tr');
         tr.innerHTML = `
           <td class="border border-slate-400 p-0.5"><input type="text" value="${f.fecha}" placeholder="dd/mm" oninput="actualizarFilaS26(${idx}, 'fecha', this.value)" class="w-full px-1 py-0.5 text-center" /></td>
           <td class="border border-slate-400 p-0.5"><input type="text" value="${f.desc}" oninput="actualizarFilaS26(${idx}, 'desc', this.value)" class="w-full px-1 py-0.5" /></td>
-          <td class="border border-slate-400 p-0.5 text-center">
-            <select onchange="actualizarFilaS26(${idx}, 'ct', this.value)" class="w-full bg-transparent px-1 py-0.5 text-center font-bold text-blue-900 focus:outline-none">
-              ${optionsHtml}
-            </select>
-          </td>
+          <td class="border border-slate-400 p-0.5"><input type="text" value="${f.ct}" oninput="actualizarFilaS26(${idx}, 'ct', this.value)" class="w-full px-1 py-0.5 text-center uppercase" /></td>
           <td class="border border-slate-400 p-0.5 bg-blue-50/30"><input type="number" step="0.01" value="${f.rec_in}" oninput="actualizarFilaS26(${idx}, 'rec_in', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
           <td class="border border-slate-400 p-0.5 bg-blue-50/30"><input type="number" step="0.01" value="${f.rec_out}" oninput="actualizarFilaS26(${idx}, 'rec_out', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
           <td class="border border-slate-400 p-0.5 bg-emerald-50/30"><input type="number" step="0.01" value="${f.pri_in}" oninput="actualizarFilaS26(${idx}, 'pri_in', this.value)" class="w-full px-1 py-0.5 text-right font-mono" /></td>
@@ -1227,459 +738,14 @@
         `;
         tbody.appendChild(tr);
       });
-
       calcularS26();
       calcularConciliacion();
-      renderHistorialS26();
-      renderResolucionesS26();
-      renderFondosContribS26();
-      renderDesembolsosS26();
-      renderCodigosS26();
-    }
-
-    function renderHistorialS26() {
-      const d = appData.s26;
-      const tbody = document.getElementById('s26_historial_tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      if (d.filas.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="9" class="text-center p-3 text-slate-400 italic">No hay movimientos registrados.</td></tr>`;
-      } else {
-        d.filas.forEach(f => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="border border-slate-300 p-1 text-center font-mono">${f.fecha || '-'}</td>
-            <td class="border border-slate-300 p-1">${f.desc || '-'}</td>
-            <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${f.ct || '-'}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_in)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.rec_out)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_in)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.pri_out)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_in)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(f.sec_out)}</td>
-          `;
-          tbody.appendChild(tr);
-        });
-      }
-
-      // Fila para separar al final del resumen
-      const trSep = document.createElement('tr');
-      trSep.className = 'bg-slate-200/80 h-3';
-      trSep.innerHTML = `<td colspan="9" class="border border-slate-300 p-0.5"></td>`;
-      tbody.appendChild(trSep);
-
-      // Encabezado + filas no cero de Resumen de Resoluciones y Contribuciones (S-26-S)
-      const trEncRes = document.createElement('tr');
-      trEncRes.className = 'bg-blue-50 font-bold text-blue-950';
-      trEncRes.innerHTML = `
-        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
-        <td class="border border-slate-300 p-1">Traspaso a la Sucursal</td>
-        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-      `;
-      tbody.appendChild(trEncRes);
-
-      (d.resoluciones || []).forEach(r => {
-        const monto = parseFloat(r.monto) || 0;
-        if (monto !== 0) {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="border border-slate-300 p-1 text-center font-mono">-</td>
-            <td class="border border-slate-300 p-1">${r.desc || '-'}</td>
-            <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${r.codigo || '-'}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(monto)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-          `;
-          tbody.appendChild(tr);
-        }
-      });
-
-      // Encabezado + filas no cero de Resumen de Fondos Contribuciones (S-26-S)
-      const trEncFc = document.createElement('tr');
-      trEncFc.className = 'bg-blue-50 font-bold text-blue-950';
-      trEncFc.innerHTML = `
-        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
-        <td class="border border-slate-300 p-1">Traspaso a la Sucursal</td>
-        <td class="border border-slate-300 p-1 text-center font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-        <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-      `;
-      tbody.appendChild(trEncFc);
-
-      (d.fondos_contrib || []).forEach(r => {
-        const monto = parseFloat(r.monto) || 0;
-        if (monto !== 0) {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `
-            <td class="border border-slate-300 p-1 text-center font-mono">-</td>
-            <td class="border border-slate-300 p-1">${r.desc || '-'}</td>
-            <td class="border border-slate-300 p-1 text-center font-bold text-blue-900">${r.codigo || '-'}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">${fmt(monto)}</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-            <td class="border border-slate-300 p-1 text-right font-mono">-</td>
-          `;
-          tbody.appendChild(tr);
-        }
-      });
-    }
-
-    function renderResolucionesS26() {
-      if (!appData.s26.resoluciones) {
-        appData.s26.resoluciones = [
-          { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
-          { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
-          { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
-        ];
-      }
-
-      const tbody = document.getElementById('s26_resoluciones_tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      let totalRes = 0;
-
-      appData.s26.resoluciones.forEach((r, idx) => {
-        totalRes += (parseFloat(r.monto) || 0);
-        let optionsHtml = '';
-        OPCIONES_CT.forEach(opt => {
-          const selected = (r.codigo === opt) ? 'selected' : '';
-          optionsHtml += `<option value="${opt}" ${selected}>${opt === '' ? '--' : opt}</option>`;
-        });
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border border-slate-300 p-1">
-            <input type="text" value="${r.desc}" oninput="actualizarResolucionS26(${idx}, 'desc', this.value)" class="w-full px-2 py-1 bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1">
-            <input type="number" step="0.01" value="${r.monto}" oninput="actualizarResolucionS26(${idx}, 'monto', this.value)" class="w-full px-2 py-1 text-right font-mono bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1 text-center">
-            <select onchange="actualizarResolucionS26(${idx}, 'codigo', this.value)" class="w-full bg-transparent px-1 py-1 text-center font-bold text-blue-900 focus:outline-none">
-              ${optionsHtml}
-            </select>
-          </td>
-          <td class="border border-slate-300 p-1 text-center no-print">
-            <button onclick="eliminarResolucionS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('s26_res_total_monto').textContent = fmt(totalRes);
-      document.getElementById('s26_res_pie_total').textContent = fmt(totalRes);
-    }
-
-    function actualizarResolucionS26(idx, campo, valor) {
-      if (!appData.s26.resoluciones[idx]) return;
-      appData.s26.resoluciones[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
-      guardarTodo(false);
-      let totalRes = appData.s26.resoluciones.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
-      document.getElementById('s26_res_total_monto').textContent = fmt(totalRes);
-      document.getElementById('s26_res_pie_total').textContent = fmt(totalRes);
-      renderHistorialS26();
-    }
-
-    function agregarResolucionS26() {
-      if (!appData.s26.resoluciones) appData.s26.resoluciones = [];
-      appData.s26.resoluciones.push({ desc: '', monto: 0, codigo: '' });
-      renderResolucionesS26();
-      renderHistorialS26();
-      guardarTodo(false);
-    }
-
-    function eliminarResolucionS26(idx) {
-      appData.s26.resoluciones.splice(idx, 1);
-      renderResolucionesS26();
-      renderHistorialS26();
-      guardarTodo(false);
-      mostrarToast('Item de resolución eliminado');
-    }
-
-    // ================= FONDOS CONTRIBUCIONES S-26 LOGIC =================
-    function renderFondosContribS26() {
-      if (!appData.s26.fondos_contrib) {
-        appData.s26.fondos_contrib = FONDOS_CONTRIB_INICIALES.map(item => ({ ...item }));
-      }
-
-      const tbody = document.getElementById('s26_fondos_contrib_tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      let totalFc = 0;
-
-      appData.s26.fondos_contrib.forEach((r, idx) => {
-        totalFc += (parseFloat(r.monto) || 0);
-        let optionsHtml = '';
-        OPCIONES_CT.forEach(opt => {
-          const selected = (r.codigo === opt) ? 'selected' : '';
-          optionsHtml += `<option value="${opt}" ${selected}>${opt === '' ? '--' : opt}</option>`;
-        });
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border border-slate-300 p-1">
-            <input type="text" value="${r.desc}" oninput="actualizarFondoContribS26(${idx}, 'desc', this.value)" class="w-full px-2 py-1 bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1">
-            <input type="number" step="0.01" value="${r.monto}" oninput="actualizarFondoContribS26(${idx}, 'monto', this.value)" class="w-full px-2 py-1 text-right font-mono bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1 text-center">
-            <select onchange="actualizarFondoContribS26(${idx}, 'codigo', this.value)" class="w-full bg-transparent px-1 py-1 text-center font-bold text-blue-900 focus:outline-none">
-              ${optionsHtml}
-            </select>
-          </td>
-          <td class="border border-slate-300 p-1 text-center no-print">
-            <button onclick="eliminarFondoContribS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      document.getElementById('s26_fc_total_monto').textContent = fmt(totalFc);
-      document.getElementById('s26_fc_pie_total').textContent = fmt(totalFc);
-    }
-
-    function actualizarFondoContribS26(idx, campo, valor) {
-      if (!appData.s26.fondos_contrib[idx]) return;
-      appData.s26.fondos_contrib[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
-      guardarTodo(false);
-      let totalFc = appData.s26.fondos_contrib.reduce((acc, curr) => acc + (parseFloat(curr.monto) || 0), 0);
-      document.getElementById('s26_fc_total_monto').textContent = fmt(totalFc);
-      document.getElementById('s26_fc_pie_total').textContent = fmt(totalFc);
-      renderHistorialS26();
-    }
-
-    function agregarFondoContribS26() {
-      if (!appData.s26.fondos_contrib) appData.s26.fondos_contrib = [];
-      appData.s26.fondos_contrib.push({ desc: '', monto: 0, codigo: '' });
-      renderFondosContribS26();
-      renderHistorialS26();
-      guardarTodo(false);
-    }
-
-    function eliminarFondoContribS26(idx) {
-      appData.s26.fondos_contrib.splice(idx, 1);
-      renderFondosContribS26();
-      renderHistorialS26();
-      guardarTodo(false);
-      mostrarToast('Item eliminado');
-    }
-
-    // ================= DESEMBOLSOS S-26 LOGIC =================
-    function renderDesembolsosS26() {
-      if (!appData.s26.desembolsos) {
-        appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
-      }
-
-      const tbody = document.getElementById('s26_desembolsos_tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      appData.s26.desembolsos.forEach((item, idx) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border border-slate-300 p-1">
-            <input type="text" value="${item.desc}" oninput="actualizarDesembolsoS26(${idx}, 'desc', this.value)" class="w-full px-2 py-1 bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1">
-            <input type="number" step="0.01" value="${item.monto}" oninput="actualizarDesembolsoS26(${idx}, 'monto', this.value)" class="w-full px-2 py-1 text-right font-mono bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1 text-center">
-            <select onchange="actualizarDesembolsoS26(${idx}, 'tipo', this.value)" class="w-full bg-slate-50 border border-slate-200 rounded px-1.5 py-1 text-xs font-medium text-slate-700 focus:outline-none">
-              <option value="func" ${item.tipo === 'func' ? 'selected' : ''}>Gasto de funcionamiento</option>
-              <option value="cong" ${item.tipo === 'cong' ? 'selected' : ''}>Gasto de congregación</option>
-              <option value="otros" ${item.tipo === 'otros' ? 'selected' : ''}>Otros reembolsos / desembolsos</option>
-            </select>
-          </td>
-          <td class="border border-slate-300 p-1 text-center no-print">
-            <button onclick="eliminarDesembolsoS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      calcularDesembolsosS26();
-    }
-
-    function calcularDesembolsosS26() {
-      if (!appData.s26.desembolsos) return;
-      const totMonto = appData.s26.desembolsos.reduce((acc, item) => acc + (parseFloat(item.monto) || 0), 0);
-
-      document.getElementById('s26_des_total_general').textContent = fmt(totMonto);
-      document.getElementById('s26_des_pie_monto').textContent = fmt(totMonto);
-    }
-
-    function actualizarDesembolsoS26(idx, campo, valor) {
-      if (!appData.s26.desembolsos[idx]) return;
-      appData.s26.desembolsos[idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
-      guardarTodo(false);
-      calcularDesembolsosS26();
-    }
-
-    function agregarDesembolsoS26() {
-      if (!appData.s26.desembolsos) appData.s26.desembolsos = [];
-      appData.s26.desembolsos.push({ desc: '', monto: 0, tipo: 'cong' });
-      renderDesembolsosS26();
-      guardarTodo(false);
-    }
-
-    function eliminarDesembolsoS26(idx) {
-      appData.s26.desembolsos.splice(idx, 1);
-      renderDesembolsosS26();
-      guardarTodo(false);
-      mostrarToast('Item de desembolso eliminado');
-    }
-
-    // ================= CÓDIGOS S-26 LOGIC =================
-    function normalizarItemCodigo(item) {
-      if (!item.ajuste || typeof item.ajuste !== 'object') {
-        item.ajuste = { veces: 0, rec_in: 0 };
-      }
-      item.ajuste.veces = parseInt(item.ajuste.veces, 10) || 0;
-      item.ajuste.rec_in = parseFloat(item.ajuste.rec_in) || 0;
-      return item;
-    }
-
-    function obtenerSumasAutoPorCodigo(codigo) {
-      const res = { veces: 0, rec_in: 0 };
-      const codTrim = (codigo || '').trim().toUpperCase();
-      if (!codTrim) return res;
-
-      (appData.s26.filas || []).forEach(f => {
-        if ((f.ct || '').trim().toUpperCase() === codTrim) {
-          res.veces += 1;
-          res.rec_in += (parseFloat(f.rec_in) || 0);
-        }
-      });
-      return res;
-    }
-
-    function obtenerValoresFilaCodigo(item) {
-      normalizarItemCodigo(item);
-      const auto = obtenerSumasAutoPorCodigo(item.codigo);
-      return {
-        veces: auto.veces + item.ajuste.veces,
-        rec_in: auto.rec_in + item.ajuste.rec_in
-      };
-    }
-
-    function renderCodigosS26() {
-      if (!appData.s26.codigos) {
-        appData.s26.codigos = CODIGOS_INICIALES.map(item => ({
-          codigo: item.codigo,
-          ajuste: { ...item.ajuste }
-        }));
-      }
-
-      const tbody = document.getElementById('s26_codigos_tbody');
-      if (!tbody) return;
-      tbody.innerHTML = '';
-
-      appData.s26.codigos.forEach((rawItem, idx) => {
-        const item = normalizarItemCodigo(rawItem);
-        const vals = obtenerValoresFilaCodigo(item);
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-          <td class="border border-slate-300 p-1 text-center">
-            <input type="text" value="${item.codigo}" oninput="actualizarCodigoS26(${idx}, this.value)" class="w-full px-1.5 py-1 text-center font-bold text-blue-900 bg-transparent focus:outline-none uppercase" />
-          </td>
-          <td class="border border-slate-300 p-1 bg-slate-50/50">
-            <input type="number" step="1" value="${vals.veces}" oninput="actualizarCampoCodigoS26(${idx}, 'veces', this.value)" class="w-full px-1.5 py-1 text-center font-mono bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1 bg-blue-50/20">
-            <input type="number" step="0.01" value="${vals.rec_in}" oninput="actualizarCampoCodigoS26(${idx}, 'rec_in', this.value)" class="w-full px-1.5 py-1 text-right font-mono bg-transparent focus:outline-none" />
-          </td>
-          <td class="border border-slate-300 p-1 text-center no-print">
-            <button onclick="eliminarCodigoS26(${idx})" class="text-red-500 hover:text-red-700 font-bold px-2 py-0.5 rounded bg-red-50">✕</button>
-          </td>
-        `;
-        tbody.appendChild(tr);
-      });
-
-      calcularCodigosS26();
-    }
-
-    function calcularCodigosS26() {
-      if (!appData.s26.codigos) return;
-      let totVeces = 0;
-      let totRecIn = 0;
-
-      appData.s26.codigos.forEach((rawItem) => {
-        const vals = obtenerValoresFilaCodigo(rawItem);
-        totVeces += vals.veces;
-        totRecIn += vals.rec_in;
-      });
-
-      const elVeces = document.getElementById('s26_cod_tot_veces');
-      const elRecIn = document.getElementById('s26_cod_tot_rec_in');
-      if (elVeces) elVeces.textContent = totVeces;
-      if (elRecIn) elRecIn.textContent = fmt(totRecIn);
-    }
-
-    function actualizarCodigoS26(idx, valor) {
-      if (!appData.s26.codigos[idx]) return;
-      appData.s26.codigos[idx].codigo = valor;
-      guardarTodo(false);
-      renderCodigosS26();
-    }
-
-    function actualizarCampoCodigoS26(idx, campo, valor) {
-      const item = normalizarItemCodigo(appData.s26.codigos[idx]);
-      if (!item) return;
-      const auto = obtenerSumasAutoPorCodigo(item.codigo);
-      if (campo === 'veces') {
-        const nuevoValor = parseInt(valor, 10) || 0;
-        item.ajuste.veces = nuevoValor - auto.veces;
-      } else {
-        const nuevoValor = parseFloat(valor) || 0;
-        item.ajuste.rec_in = nuevoValor - auto.rec_in;
-      }
-      guardarTodo(false);
-      calcularCodigosS26();
-    }
-
-    function agregarCodigoS26() {
-      if (!appData.s26.codigos) appData.s26.codigos = [];
-      appData.s26.codigos.push({
-        codigo: '',
-        ajuste: { veces: 0, rec_in: 0 }
-      });
-      renderCodigosS26();
-      guardarTodo(false);
-    }
-
-    function eliminarCodigoS26(idx) {
-      appData.s26.codigos.splice(idx, 1);
-      renderCodigosS26();
-      guardarTodo(false);
-      mostrarToast('Item eliminado');
     }
 
     function actualizarFilaS26(idx, campo, valor) {
       const numericFields = ['rec_in', 'rec_out', 'pri_in', 'pri_out', 'sec_in', 'sec_out'];
       appData.s26.filas[idx][campo] = numericFields.includes(campo) ? (parseFloat(valor) || 0) : valor;
       calcularS26();
-      renderHistorialS26();
-      renderCodigosS26();
       guardarTodo(false);
     }
 
@@ -1738,84 +804,40 @@
     }
 
     // ================= S-30 LOGIC =================
-    function renderSeccionS30(seccionKey, containerId) {
-      appData.s30 = asegurarEstructuraS30(appData.s30);
-      const lista = appData.s30[seccionKey];
-      const cont = document.getElementById(containerId);
-      if (!cont) return;
-      cont.innerHTML = '';
-
-      lista.forEach((item, idx) => {
-        const div = document.createElement('div');
-        div.className = 'flex items-center justify-between gap-2 pl-2 py-0.5 rounded hover:bg-slate-50';
-        div.innerHTML = `
-          <input type="text" value="${item.texto ?? ''}" oninput="actualizarFilaS30('${seccionKey}', ${idx}, 'texto', this.value)" class="flex-1 border-b border-transparent hover:border-slate-300 focus:border-blue-500 focus:outline-none bg-transparent px-1.5 py-0.5 text-sm" />
-          <input type="number" step="0.01" value="${item.monto ?? 0}" oninput="actualizarFilaS30('${seccionKey}', ${idx}, 'monto', this.value)" class="w-32 border border-slate-300 rounded px-2 py-1 text-right font-mono bg-white" />
-        `;
-        cont.appendChild(div);
-      });
-    }
-
     function renderS30() {
-      appData.s30 = asegurarEstructuraS30(appData.s30);
       const d = appData.s30;
-      document.getElementById('s30_cong').value = d.cong ?? '';
-      document.getElementById('s30_mes_anio').value = d.mes_anio ?? '';
-      document.getElementById('s30_a').value = d.a ?? 0;
+      ['cong', 'mes_anio', 'a', 'ing_cajas', 'ing_elec', 'c', 'gas_salon', 'gas_res', 'f', 'j', 'chk1_val', 'chk2_val'].forEach(k => {
+        document.getElementById('s30_' + k).value = d[k] ?? '';
+      });
       document.getElementById('s30_chk1').checked = !!d.chk1;
-      document.getElementById('s30_chk1_val').value = d.chk1_val ?? '';
       document.getElementById('s30_chk2').checked = !!d.chk2;
-      document.getElementById('s30_chk2_val').value = d.chk2_val ?? '';
-
-      renderSeccionS30('ingresos', 's30_ingresos_lista');
-      renderSeccionS30('otros_ingresos', 's30_otros_ingresos_lista');
-      renderSeccionS30('gastos_cong', 's30_gastos_cong_lista');
-      renderSeccionS30('otros_desembolsos', 's30_otros_desembolsos_lista');
-      renderSeccionS30('fondos_reservados', 's30_fondos_reservados_lista');
-
       calcularS30();
-    }
-
-    function actualizarFilaS30(seccionKey, idx, campo, valor) {
-      appData.s30 = asegurarEstructuraS30(appData.s30);
-      if (!appData.s30[seccionKey][idx]) return;
-      appData.s30[seccionKey][idx][campo] = campo === 'monto' ? (parseFloat(valor) || 0) : valor;
-      calcularS30();
-      guardarTodo(false);
-    }
-
-    function sumarSeccionS30(seccionKey) {
-      const lista = appData.s30?.[seccionKey] || [];
-      return lista.reduce((acc, item) => acc + (parseFloat(item.monto) || 0), 0);
     }
 
     function calcularS30() {
-      appData.s30 = asegurarEstructuraS30(appData.s30);
       const a = num('s30_a');
-      const b = sumarSeccionS30('ingresos');
-      const c = sumarSeccionS30('otros_ingresos');
+      const b = num('s30_ing_cajas') + num('s30_ing_elec');
+      const c = num('s30_c');
       const d = b + c;
 
-      const e = sumarSeccionS30('gastos_cong');
-      const f = sumarSeccionS30('otros_desembolsos');
+      const e = num('s30_gas_salon') + num('s30_gas_res');
+      const f = num('s30_f');
       const g = e + f;
 
       const h = d - g;
       const i = a + h;
-      const j = sumarSeccionS30('fondos_reservados');
+      const j = num('s30_j');
       const k = i - j;
 
       document.getElementById('s30_b').textContent = fmt(b);
-      document.getElementById('s30_c').textContent = fmt(c);
       document.getElementById('s30_d').textContent = fmt(d);
       document.getElementById('s30_e').textContent = fmt(e);
-      document.getElementById('s30_f').textContent = fmt(f);
       document.getElementById('s30_g').textContent = fmt(g);
       document.getElementById('s30_h').textContent = fmt(h);
       document.getElementById('s30_i').textContent = fmt(i);
-      document.getElementById('s30_j').textContent = fmt(j);
       document.getElementById('s30_k').textContent = fmt(k);
 
+      // Actualizar anuncio automático
       const mesText = document.getElementById('s30_mes_anio').value.trim();
       document.getElementById('anuncio_mes').textContent = mesText || '________';
       document.getElementById('anuncio_b').textContent = fmt(b);
@@ -1826,6 +848,7 @@
       guardarTodo(false);
     }
 
+    // ================= S-44 LOGIC =================
     function renderS44() {
       const d = appData.s44;
       ['loc', 'mes_anio', 'a', 'b', 'c', 'f', 'siervo'].forEach(k => {
@@ -1849,13 +872,16 @@
       guardarTodo(false);
     }
 
+    // ================= PERSISTENCIA LOCAL =================
     function guardarTodo() {
+      // S-24
       appData.s24.fecha = document.getElementById('s24_fecha').value;
       appData.s24.rellenado = document.getElementById('s24_rellenado').value;
       appData.s24.verificado = document.getElementById('s24_verificado').value;
       const checkedTipo = document.querySelector('input[name="s24_tipo"]:checked');
       if (checkedTipo) appData.s24.tipo = checkedTipo.value;
 
+      // S-26
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes'].forEach(k => {
         appData.s26[k] = document.getElementById('s26_' + k).value;
       });
@@ -1863,15 +889,14 @@
         appData.s26[k] = document.getElementById(k).value;
       });
 
-      appData.s30 = asegurarEstructuraS30(appData.s30);
-      appData.s30.cong = document.getElementById('s30_cong').value;
-      appData.s30.mes_anio = document.getElementById('s30_mes_anio').value;
-      appData.s30.a = parseFloat(document.getElementById('s30_a').value) || 0;
+      // S-30
+      ['cong', 'mes_anio', 'a', 'ing_cajas', 'ing_elec', 'c', 'gas_salon', 'gas_res', 'f', 'j', 'chk1_val', 'chk2_val'].forEach(k => {
+        appData.s30[k] = document.getElementById('s30_' + k).value;
+      });
       appData.s30.chk1 = document.getElementById('s30_chk1').checked;
-      appData.s30.chk1_val = document.getElementById('s30_chk1_val').value;
       appData.s30.chk2 = document.getElementById('s30_chk2').checked;
-      appData.s30.chk2_val = document.getElementById('s30_chk2_val').value;
 
+      // S-44
       ['loc', 'mes_anio', 'a', 'b', 'c', 'f', 'siervo'].forEach(k => {
         appData.s44[k] = document.getElementById('s44_' + k).value;
       });
@@ -1885,29 +910,6 @@
         try {
           const parsed = JSON.parse(saved);
           appData = { ...appData, ...parsed };
-          if (!appData.s24.historial) appData.s24.historial = [];
-          if (!appData.s26.resoluciones) {
-            appData.s26.resoluciones = [
-              { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
-              { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
-              { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
-            ];
-          }
-          if (!appData.s26.fondos_contrib) {
-            appData.s26.fondos_contrib = FONDOS_CONTRIB_INICIALES.map(item => ({ ...item }));
-          }
-          if (!appData.s26.desembolsos) {
-            appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
-          }
-          if (!appData.s26.codigos) {
-            appData.s26.codigos = CODIGOS_INICIALES.map(item => ({
-              codigo: item.codigo,
-              ajuste: { ...item.ajuste }
-            }));
-          } else {
-            appData.s26.codigos.forEach(item => normalizarItemCodigo(item));
-          }
-          appData.s30 = asegurarEstructuraS30(appData.s30);
         } catch (e) {
           console.error('Error leyendo datos locales', e);
         }
@@ -1921,37 +923,13 @@
     function limpiarModulo(mod) {
       if (!confirm('¿Deseas vaciar todos los campos de este formulario?')) return;
       if (mod === 's24') {
-        appData.s24 = {
-          fecha: new Date().toISOString().split('T')[0],
-          tipo: 'Donación',
-          filas: [
-            { concepto: 'Donaciones (Obra mundial)', monto: 0 },
-            { concepto: 'Donaciones (Gastos de la congregación)', monto: 0 }
-          ],
-          rellenado: '',
-          verificado: '',
-          historial: appData.s24.historial
-        };
+        appData.s24 = { fecha: new Date().toISOString().split('T')[0], tipo: 'Donación', filas: [{ concepto: '', monto: 0 }], rellenado: '', verificado: '' };
         renderS24();
       } else if (mod === 's26') {
-        appData.s26 = {
-          cong: '', ciudad: '', estado: '', mes: '', anio: '', sa_rec: 0, sa_pri: 0, sa_sec: 0, fin_mes: '', conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0,
-          filas: [{ fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }],
-          resoluciones: [
-            { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
-            { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
-            { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
-          ],
-          fondos_contrib: FONDOS_CONTRIB_INICIALES.map(item => ({ ...item })),
-          desembolsos: DESEMBOLSOS_INICIALES.map(item => ({ ...item })),
-          codigos: CODIGOS_INICIALES.map(item => ({
-            codigo: item.codigo,
-            ajuste: { ...item.ajuste }
-          }))
-        };
+        appData.s26 = { cong: '', ciudad: '', estado: '', mes: '', anio: '', sa_rec: 0, sa_pri: 0, sa_sec: 0, fin_mes: '', conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0, filas: [{ fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }] };
         renderS26();
       } else if (mod === 's30') {
-        appData.s30 = crearS30Inicial();
+        appData.s30 = { cong: '', mes_anio: '', a: 0, ing_cajas: 0, ing_elec: 0, c: 0, gas_salon: 0, gas_res: 0, f: 0, j: 0, chk1: false, chk1_val: '', chk2: false, chk2_val: '' };
         renderS30();
       } else if (mod === 's44') {
         appData.s44 = { loc: '', mes_anio: '', a: 0, b: 0, c: 0, f: 0, siervo: '' };
@@ -1961,6 +939,7 @@
       mostrarToast('Formulario limpiado');
     }
 
+    // ================= EXPORTAR / IMPORTAR JSON =================
     function exportarDatos() {
       guardarTodo();
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(appData, null, 2));
@@ -1983,29 +962,6 @@
           const imported = JSON.parse(e.target.result);
           if (imported.s24 && imported.s26 && imported.s30 && imported.s44) {
             appData = imported;
-            if (!appData.s24.historial) appData.s24.historial = [];
-            if (!appData.s26.resoluciones) {
-              appData.s26.resoluciones = [
-                { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
-                { desc: 'Contribución Única (resolución)', monto: 0, codigo: 'D' },
-                { desc: 'Resolución mensual para la Obra mundial', monto: 0, codigo: 'OM' }
-              ];
-            }
-            if (!appData.s26.fondos_contrib) {
-              appData.s26.fondos_contrib = FONDOS_CONTRIB_INICIALES.map(item => ({ ...item }));
-            }
-            if (!appData.s26.desembolsos) {
-              appData.s26.desembolsos = DESEMBOLSOS_INICIALES.map(item => ({ ...item }));
-            }
-            if (!appData.s26.codigos) {
-              appData.s26.codigos = CODIGOS_INICIALES.map(item => ({
-                codigo: item.codigo,
-                ajuste: { ...item.ajuste }
-              }));
-            } else {
-              appData.s26.codigos.forEach(item => normalizarItemCodigo(item));
-            }
-            appData.s30 = asegurarEstructuraS30(appData.s30);
             localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
             renderS24();
             renderS26();
@@ -2022,6 +978,9 @@
       reader.readAsText(file);
       event.target.value = '';
     }
+
+    // Inicializar al cargar
+    window.addEventListener('DOMContentLoaded', cargarTodo);
   </script>
 </body>
 </html>
