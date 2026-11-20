@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Gestión de Cuentas - Formularios S-24, S-26, S-30, S-44</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
   <style>
     @media print {
       .no-print { display: none !important; }
@@ -208,6 +209,9 @@
           <h2 class="text-xl font-bold uppercase">Hoja de Cuentas</h2>
           <span class="text-xs text-slate-500 font-mono">Formulario S-26-S 5/21</span>
         </div>
+        <button type="button" onclick="generarPDFS26()" class="no-print bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2 rounded shadow">
+          📄 RELLENAR FORMULARIO S-26-S (PDF)
+        </button>
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-5 gap-3 mb-5 text-sm">
@@ -377,6 +381,19 @@
               <span>9. Saldo bancario conciliado:</span>
               <span id="conc_b9" class="font-mono text-sm">0.00</span>
             </div>
+          </div>
+        </div>
+        <div class="border border-slate-400 rounded p-3">
+          <h3 class="font-bold text-sm uppercase mb-2 border-b border-slate-300 pb-1">Conciliación Cuenta Secundaria</h3>
+          <p class="text-[11px] text-slate-500 mb-2">Complete estos valores si utiliza una cuenta secundaria bancaria.</p>
+          <div class="space-y-1.5">
+            <div class="flex justify-between items-center"><span>1. Saldo del extracto:</span><input type="number" step="0.01" id="conc_s1" oninput="calcularConciliacionSec()" class="w-28 border rounded px-1.5 py-0.5 text-right font-mono" value="0"></div>
+            <div class="flex justify-between items-center"><span>2. Depósitos no reflejados (+):</span><input type="number" step="0.01" id="conc_s2" oninput="calcularConciliacionSec()" class="w-28 border rounded px-1.5 py-0.5 text-right font-mono" value="0"></div>
+            <div class="flex justify-between items-center"><span>3. Cargos sin registrar (+):</span><input type="number" step="0.01" id="conc_s3" oninput="calcularConciliacionSec()" class="w-28 border rounded px-1.5 py-0.5 text-right font-mono" value="0"></div>
+            <div class="flex justify-between items-center font-bold bg-slate-100 p-1 rounded"><span>4. Total líneas 1 a 3:</span><span id="conc_s4" class="font-mono">0.00</span></div>
+            <div class="flex justify-between items-center"><span>6. Retiradas no reflejadas (-):</span><input type="number" step="0.01" id="conc_s6" oninput="calcularConciliacionSec()" class="w-28 border rounded px-1.5 py-0.5 text-right font-mono" value="0"></div>
+            <div class="flex justify-between items-center"><span>7. Intereses sin registrar (-):</span><input type="number" step="0.01" id="conc_s7" oninput="calcularConciliacionSec()" class="w-28 border rounded px-1.5 py-0.5 text-right font-mono" value="0"></div>
+            <div class="flex justify-between items-center font-bold bg-emerald-50 border border-emerald-200 p-1.5 rounded text-emerald-900"><span>8. Saldo conciliado:</span><span id="conc_s8" class="font-mono">0.00</span></div>
           </div>
         </div>
       </div>
@@ -991,6 +1008,7 @@
         sa_rec: 0, sa_pri: 0, sa_sec: 0,
         fin_mes: '',
         conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0,
+        conc_s1: 0, conc_s2: 0, conc_s3: 0, conc_s6: 0, conc_s7: 0,
         filas: [
           { fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }
         ],
@@ -1194,7 +1212,7 @@
     function renderS26() {
       const d = appData.s26;
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes',
-       'conc_b1', 'conc_b2', 'conc_b3', 'conc_b6', 'conc_b7', 'conc_b8'].forEach(k => {
+       'conc_b1', 'conc_b2', 'conc_b3', 'conc_b6', 'conc_b7', 'conc_b8', 'conc_s1', 'conc_s2', 'conc_s3', 'conc_s6', 'conc_s7'].forEach(k => {
         const el = document.getElementById('s26_' + k) || document.getElementById(k);
         if (el) el.value = d[k] ?? '';
       });
@@ -1230,6 +1248,7 @@
 
       calcularS26();
       calcularConciliacion();
+      calcularConciliacionSec();
       renderHistorialS26();
       renderResolucionesS26();
       renderFondosContribS26();
@@ -1737,6 +1756,78 @@
       guardarTodo(false);
     }
 
+    function calcularConciliacionSec() {
+      const total = num('conc_s1') + num('conc_s2') + num('conc_s3');
+      const conciliado = total - num('conc_s6') - num('conc_s7');
+      document.getElementById('conc_s4').textContent = fmt(total);
+      document.getElementById('conc_s8').textContent = fmt(conciliado);
+      guardarTodo(false);
+    }
+
+    // Genera el formulario oficial S-26-S superponiendo los datos sobre la plantilla PDF.
+    async function generarPDFS26() {
+      try {
+        guardarTodo(); calcularS26(); calcularConciliacion(); calcularConciliacionSec();
+        if (!window.PDFLib) throw new Error('No se pudo cargar la biblioteca PDF. Compruebe su conexión a Internet.');
+        const respuesta = await fetch('./S-26_S.pdf');
+        if (!respuesta.ok) throw new Error('No se encontró S-26_S.pdf. Mantenga el PDF oficial en la misma carpeta que index.html.');
+        const pdfDoc = await PDFLib.PDFDocument.load(await respuesta.arrayBuffer());
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
+        const pages = pdfDoc.getPages();
+        const d = appData.s26;
+        const black = PDFLib.rgb(0.08,0.08,0.08);
+        const money = v => (Number(v)||0).toLocaleString('es-ES',{minimumFractionDigits:2,maximumFractionDigits:2});
+        const text = (page, value, x, y, size=6.5, maxWidth=100) => {
+          const str = String(value ?? ''); if (!str) return;
+          let out = str; while (font.widthOfTextAtSize(out,size)>maxWidth && out.length>1) out=out.slice(0,-1);
+          page.drawText(out,{x,y,size,font,color:black});
+        };
+        const right = (page,value,x,y,size=6.3) => { const str=String(value??''); text(page,str,x-font.widthOfTextAtSize(str,size),y,size,100); };
+        const topY = (page, yFromTop) => page.getHeight() - yFromTop;
+        const p1=pages[0], p2=pages[1];
+        // Cabecera de la página 1 (coordenadas referidas al borde superior de la plantilla A4).
+        text(p1,d.cong,64,topY(p1,68),7,175); text(p1,d.ciudad,258,topY(p1,68),7,95);
+        text(p1,d.estado,373,topY(p1,68),7,95); text(p1,d.mes,486,topY(p1,68),7,55); text(p1,d.anio,548,topY(p1,68),7,35);
+        // Filas de movimientos: se conserva el orden del historial de la Hoja de Cuentas.
+        const x=[22,58,297,330,377,424,472,519,566];
+        const widths=[32,238,30,43,43,43,43,43,26];
+        const startTop=103, rowH=11.35;
+        (d.filas||[]).slice(0,48).forEach((f,i)=>{
+          const y=topY(p1,startTop+i*rowH+8);
+          text(p1,f.fecha,x[0]+2,y,6,30); text(p1,f.desc,x[1]+2,y,5.8,widths[1]-5); text(p1,f.ct,x[2]+2,y,6,25);
+          [f.rec_in,f.rec_out,f.pri_in,f.pri_out,f.sec_in,f.sec_out].forEach((v,j)=>{ if(Number(v)) right(p1,money(v),[x[3],x[4],x[5],x[6],x[7],x[8]][j]+widths[Math.min(j+3,8)]-3,y,5.8); });
+        });
+        const sums={rec_in:0,rec_out:0,pri_in:0,pri_out:0,sec_in:0,sec_out:0};
+        (d.filas||[]).forEach(f=>Object.keys(sums).forEach(k=>sums[k]+=Number(f[k])||0));
+        const totalTop=topY(p1,1008);
+        [sums.rec_in,sums.rec_out,sums.pri_in,sums.pri_out,sums.sec_in,sums.sec_out].forEach((v,j)=>right(p1,money(v),[377,420,466,512,558,594][j],totalTop,6));
+        // Página 2: resumen de cuentas, bloque inferior izquierdo.
+        const fin = d.fin_mes || '';
+        text(p2,fin,170,topY(p2,87),7,120);
+        const summaryRows=[
+          [d.sa_rec,sums.rec_in,sums.rec_out,Number(d.sa_rec)+sums.rec_in-sums.rec_out],
+          [d.sa_pri,sums.pri_in,sums.pri_out,Number(d.sa_pri)+sums.pri_in-sums.pri_out],
+          [d.sa_sec,sums.sec_in,sums.sec_out,Number(d.sa_sec)+sums.sec_in-sums.sec_out]
+        ];
+        const rowYs=[topY(p2,153),topY(p2,190),topY(p2,227)];
+        summaryRows.forEach((r,i)=>r.forEach((v,j)=>right(p2,money(v),[253,335,408,484][j],rowYs[i],6.4)));
+        right(p2,money(summaryRows.reduce((a,r)=>a+r[3],0)),484,topY(p2,282),6.5);
+        // Conciliación principal: los importes se imprimen en las líneas correspondientes.
+        const bankVals=[d.conc_b1,d.conc_b2,d.conc_b3,Number(d.conc_b1)+Number(d.conc_b2)+Number(d.conc_b3),d.conc_b6,d.conc_b7,d.conc_b8,Number(d.conc_b1)+Number(d.conc_b2)+Number(d.conc_b3)-Number(d.conc_b6)-Number(d.conc_b7)-Number(d.conc_b8)];
+        const bankYs=[topY(p2,125),topY(p2,164),topY(p2,194),topY(p2,225),topY(p2,310),topY(p2,369),topY(p2,397),topY(p2,454)];
+        bankVals.forEach((v,i)=>right(p2,money(v),570,bankYs[i],6.5));
+        // Conciliación secundaria: valores adicionales capturados en el panel nuevo.
+        const secVals=[d.conc_s1,d.conc_s2,d.conc_s3,Number(d.conc_s1)+Number(d.conc_s2)+Number(d.conc_s3),d.conc_s6,d.conc_s7,Number(d.conc_s1)+Number(d.conc_s2)+Number(d.conc_s3)-Number(d.conc_s6)-Number(d.conc_s7)];
+        const secYs=[topY(p2,605),topY(p2,645),topY(p2,674),topY(p2,704),topY(p2,782),topY(p2,812),topY(p2,855)];
+        secVals.forEach((v,i)=>right(p2,money(v),570,secYs[i],6.3));
+        const bytes=await pdfDoc.save();
+        const blob=new Blob([bytes],{type:'application/pdf'}); const url=URL.createObjectURL(blob);
+        const a=document.createElement('a'); a.href=url; a.download=`S-26-S_${(d.mes||'Mes')}_${(d.anio||new Date().getFullYear())}.pdf`;
+        document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+        mostrarToast('PDF S-26-S generado. Revise los importes antes de firmar.');
+      } catch(err) { console.error(err); alert('No se pudo generar el PDF: '+err.message); }
+    }
+
     // ================= S-30 LOGIC =================
     function renderSeccionS30(seccionKey, containerId) {
       appData.s30 = asegurarEstructuraS30(appData.s30);
@@ -1859,7 +1950,7 @@
       ['cong', 'ciudad', 'estado', 'mes', 'anio', 'sa_rec', 'sa_pri', 'sa_sec', 'fin_mes'].forEach(k => {
         appData.s26[k] = document.getElementById('s26_' + k).value;
       });
-      ['conc_b1', 'conc_b2', 'conc_b3', 'conc_b6', 'conc_b7', 'conc_b8'].forEach(k => {
+      ['conc_b1', 'conc_b2', 'conc_b3', 'conc_b6', 'conc_b7', 'conc_b8', 'conc_s1', 'conc_s2', 'conc_s3', 'conc_s6', 'conc_s7'].forEach(k => {
         appData.s26[k] = document.getElementById(k).value;
       });
 
@@ -1936,6 +2027,7 @@
       } else if (mod === 's26') {
         appData.s26 = {
           cong: '', ciudad: '', estado: '', mes: '', anio: '', sa_rec: 0, sa_pri: 0, sa_sec: 0, fin_mes: '', conc_b1: 0, conc_b2: 0, conc_b3: 0, conc_b6: 0, conc_b7: 0, conc_b8: 0,
+        conc_s1: 0, conc_s2: 0, conc_s3: 0, conc_s6: 0, conc_s7: 0,
           filas: [{ fecha: '', desc: '', ct: '', rec_in: 0, rec_out: 0, pri_in: 0, pri_out: 0, sec_in: 0, sec_out: 0 }],
           resoluciones: [
             { desc: 'Obra mundial (de la caja)', monto: 0, codigo: 'OM' },
