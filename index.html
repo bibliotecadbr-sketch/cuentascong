@@ -55,6 +55,9 @@
         <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-600 text-white px-3 py-1.5 rounded font-medium transition">
           🖨 Imprimir / PDF
         </button>
+        <button onclick="cambiarContrasena()" class="bg-amber-600 hover:bg-amber-500 text-white px-3 py-1.5 rounded font-medium transition">
+          🔑 Cambiar contraseña
+        </button>
         <button onclick="cerrarSesion()" class="bg-red-700 hover:bg-red-600 text-white px-3 py-1.5 rounded font-medium transition">
           🔒 Bloquear
         </button>
@@ -848,13 +851,44 @@
   </main>
 
   <script>
-    const PASSWORD_CORRECTA = '11457';
+    // Contraseña inicial para abrir la aplicación y clave de autorización administrativa.
+    // La nueva contraseña de acceso se guarda localmente en este navegador.
+    const PASSWORD_INICIAL = '1234';
+    const CLAVE_ADMINISTRADOR = '11457';
+    const PASSWORD_STORAGE_KEY = 'cuentas_congregacion_password_v1';
+
+    function obtenerPasswordAcceso() {
+      return localStorage.getItem(PASSWORD_STORAGE_KEY) || PASSWORD_INICIAL;
+    }
+
+    function cambiarContrasena() {
+      const claveAdmin = window.prompt('Para cambiar la contraseña, ingrese la clave del administrador:');
+      if (claveAdmin === null) return;
+      if (claveAdmin !== CLAVE_ADMINISTRADOR) {
+        window.alert('Clave de administrador incorrecta. No se realizaron cambios.');
+        return;
+      }
+      const nueva = window.prompt('Escriba la nueva contraseña de apertura (mínimo 4 caracteres):');
+      if (nueva === null) return;
+      if (nueva.trim().length < 4) {
+        window.alert('La contraseña debe tener al menos 4 caracteres.');
+        return;
+      }
+      const confirmacion = window.prompt('Repita la nueva contraseña para confirmarla:');
+      if (confirmacion === null) return;
+      if (nueva !== confirmacion) {
+        window.alert('Las contraseñas no coinciden. No se realizaron cambios.');
+        return;
+      }
+      localStorage.setItem(PASSWORD_STORAGE_KEY, nueva);
+      window.alert('La contraseña de apertura se cambió correctamente en este navegador.');
+    }
 
     function verificarPassword(e) {
       e.preventDefault();
       const val = document.getElementById('input_password').value;
       const err = document.getElementById('error-login');
-      if (val === PASSWORD_CORRECTA) {
+      if (val === obtenerPasswordAcceso()) {
         sessionStorage.setItem('sesion_activa', 'true');
         document.getElementById('pantalla-login').classList.add('hidden');
         cargarTodo();
