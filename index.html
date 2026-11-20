@@ -1880,7 +1880,8 @@
         };
         // En cada importe, el formulario tiene dos casillas: la grande para
         // unidades/parte entera y la estrecha contigua para los centavos.
-        // Nunca escribir el importe completo atravesando ambas casillas.
+        // Ambas partes se alinean a la derecha con el mismo margen interior;
+        // nunca escribir el importe completo atravesando ambas casillas.
         const amountCells = {
           rec_in:  {integer:[249.96,285.81], cents:[285.81,303.73]},
           rec_out: {integer:[303.73,339.69], cents:[339.69,357.51]},
@@ -1897,7 +1898,7 @@
           drawCell(prefix + integerPart, cells.integer, top,
             {size:opts.size || 6.2, bold:!!opts.bold, align:'right'});
           drawCell(decimalPart, cells.cents, top,
-            {size:opts.size || 6.0, bold:!!opts.bold, align:'center'});
+            {size:opts.size || 6.0, bold:!!opts.bold, align:'right'});
         };
         filas.slice(0,52).forEach((f,i) => {
           const top = firstRowTop + i * rowStep;
