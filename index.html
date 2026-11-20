@@ -1809,6 +1809,35 @@
         set('904_54_S26TotalAmount',money(s6)); set('904_55_S26Amount',money(s7));
         set('904_56_S26TotalAmount',money(s8));
 
+        // Validación cruzada: la conciliación debe coincidir con el saldo final
+        // calculado desde los movimientos y los saldos anteriores.
+        const saldoFinalPrincipal = n(d.sa_pri) + sum.pri_in - sum.pri_out;
+        const saldoFinalSecundaria = n(d.sa_sec) + sum.sec_in - sum.sec_out;
+        const avisosS26 = [];
+        const centavos = v => Math.round((v + Number.EPSILON) * 100);
+        if (centavos(b9) !== centavos(saldoFinalPrincipal)) {
+          avisosS26.push(`Cuenta principal: conciliación ${money(b9)}; saldo final de la Hoja de Cuentas ${money(saldoFinalPrincipal)}.`);
+        }
+        if (centavos(s8) !== centavos(saldoFinalSecundaria)) {
+          avisosS26.push(`Cuenta secundaria: conciliación ${money(s8)}; saldo final de la Hoja de Cuentas ${money(saldoFinalSecundaria)}.`);
+        }
+        // Detectar movimientos cuyo mes/año no coincide con el período indicado.
+        const mesesS26 = {enero:1, febrero:2, marzo:3, abril:4, mayo:5, junio:6, julio:7, agosto:8, septiembre:9, setiembre:9, octubre:10, noviembre:11, diciembre:12};
+        const mesPeriodo = mesesS26[String(d.mes || '').trim().toLowerCase()];
+        const anioPeriodo = parseInt(d.anio, 10);
+        if (mesPeriodo && anioPeriodo) {
+          const fueraPeriodo = filas.filter(f => {
+            const fechaTexto = String(f.fecha || '').trim();
+            const m = fechaTexto.match(/^(\d{1,2})[\/-](\d{1,2})(?:[\/-](\d{4}))?$/);
+            if (m) return Number(m[2]) !== mesPeriodo || (m[3] && Number(m[3]) !== anioPeriodo);
+            const iso = fechaTexto.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+            if (iso) return Number(iso[2]) !== mesPeriodo || Number(iso[1]) !== anioPeriodo;
+            return false;
+          });
+          if (fueraPeriodo.length) avisosS26.push(`${fueraPeriodo.length} movimiento(s) tienen fecha fuera del período ${d.mes} ${d.anio}. Revise las fechas o el período antes de presentar el informe.`);
+        }
+        if (!String(d.fin_mes || '').trim()) avisosS26.push('La fecha "Fecha en la que se completó" de la página 2 está vacía.');
+
         // El bloque de caja de efectivo es alternativo a la conciliación bancaria y no
         // se rellena con datos bancarios para evitar duplicar importes.
         form.updateFieldAppearances();
@@ -1869,7 +1898,8 @@
         a.download=`S-26-S_${(d.mes||'Mes')}_${(d.anio||new Date().getFullYear())}.pdf`;
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(()=>URL.revokeObjectURL(url),1500);
-        mostrarToast('PDF S-26-S generado con los campos oficiales. Revise los importes antes de firmar.');
+        if (avisosS26.length) alert('PDF generado, pero revise estas advertencias antes de firmar:\n\n• ' + avisosS26.join('\n• '));
+        mostrarToast('PDF S-26-S generado. Revise las advertencias y los importes antes de firmar.');
       } catch(err) { console.error(err); alert('No se pudo generar el PDF: '+err.message); }
     }
 
