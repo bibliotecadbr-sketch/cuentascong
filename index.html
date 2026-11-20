@@ -1775,44 +1775,74 @@
         const plantillaS26Bytes = Uint8Array.from(atob(plantillaS26Base64), c => c.charCodeAt(0));
         const pdfDoc = await PDFLib.PDFDocument.load(plantillaS26Bytes);
         const form = pdfDoc.getForm();
+        const pages = pdfDoc.getPages();
+        const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
         const d = appData.s26 || {};
         const filas = Array.isArray(d.filas) ? d.filas : [];
-        const n = v => { const x = Number(String(v ?? '0').replace(',', '.')); return Number.isFinite(x) ? x : 0; };
-        const money = v => n(v).toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2});
-        const set = (name, value) => {
-          try { form.getTextField(name).setText(String(value ?? '')); }
-          catch (e) { console.warn('Campo S-26-S no disponible:', name, e); }
+
+        // Acepta números normales y formatos locales: 1500,50 / 1.500,50 / 1,500.50.
+        const n = value => {
+          if (typeof value === 'number') return Number.isFinite(value) ? value : 0;
+          let t = String(value ?? '').trim().replace(/\s/g, '').replace(/R\$/gi, '');
+          if (!t) return 0;
+          if (t.includes(',') && t.includes('.')) {
+            if (t.lastIndexOf(',') > t.lastIndexOf('.')) t = t.replace(/\./g, '').replace(',', '.');
+            else t = t.replace(/,/g, '');
+          } else if (t.includes(',')) t = t.replace(',', '.');
+          const v = Number(t);
+          return Number.isFinite(v) ? v : 0;
         };
+        const money = v => n(v).toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+        // IMPORTANTE: no usar updateFieldAppearances()/flatten() del AcroForm.
+        // En esta plantilla, las apariencias de varios widgets numéricos se desplazan.
+        // Dibujamos el texto directamente dentro del rectángulo real de cada campo.
+        const put = (name, value, align='right', size=7) => {
+          const txt = String(value ?? '');
+          if (!txt) return;
+          const field = form.getTextField(name);
+          const widgets = field.acroField.getWidgets();
+          if (!widgets || !widgets.length) throw new Error('El campo oficial no tiene posición: '+name);
+          const rect = widgets[0].getRectangle();
+          const page = name.startsWith('904_') ? pages[1] : pages[0];
+          const width = font.widthOfTextAtSize(txt, size);
+          let x = rect.x + 2;
+          if (align === 'right') x = rect.x + rect.width - width - 2;
+          else if (align === 'center') x = rect.x + (rect.width - width) / 2;
+          // Centrado vertical aproximado, usando las coordenadas nativas del PDF.
+          const y = rect.y + Math.max(2, (rect.height - size) / 2 - 1);
+          page.drawText(txt, {x, y, size, font, color: PDFLib.rgb(0,0,0), maxWidth: Math.max(4, rect.width-3)});
+        };
+        const setText = (name,value,align='left',size=7) => put(name,value,align,size);
         const sum = {rec_in:0, rec_out:0, pri_in:0, pri_out:0, sec_in:0, sec_out:0};
         filas.forEach(f => Object.keys(sum).forEach(k => sum[k] += n(f[k])));
 
-        // Página 1: datos generales.
-        [d.cong, d.ciudad, d.estado, d.mes, d.anio].forEach((v,i) => set(`900_${i+1}_Text_C`, v));
+        // Página 1: encabezado.
+        [d.cong, d.ciudad, d.estado, d.mes, d.anio].forEach((v,i) => setText(`900_${i+1}_Text_C`, v, 'center', 7));
 
-        // Página 1: las 52 filas disponibles del formulario oficial.
-        filas.slice(0,52).forEach((f,i) => {
-          const r = i + 1;
-          set(`900_${r+6}_Text_C`, f.fecha || '');
-          set(`900_${r+58}_Text`, f.desc || '');
-          set(`900_${r+110}_Text_C`, f.ct || '');
-          set(`901_${r}_S26Value`, n(f.rec_in) ? money(f.rec_in) : '');
-          set(`901_${r+53}_S26Value`, n(f.rec_out) ? money(f.rec_out) : '');
-          set(`902_${r}_S26Value`, n(f.pri_in) ? money(f.pri_in) : '');
-          set(`902_${r+53}_S26Value`, n(f.pri_out) ? money(f.pri_out) : '');
-          set(`903_${r}_S26Value`, n(f.sec_in) ? money(f.sec_in) : '');
-          set(`903_${r+53}_S26Value`, n(f.sec_out) ? money(f.sec_out) : '');
+        if (filas.length > 52) throw new Error('El formulario S-26-S admite 52 movimientos. Hay '+filas.length+' movimientos. Divida el período antes de generar el PDF.');
+        filas.forEach((f,i) => {
+          const r=i+1;
+          setText(`900_${r+6}_Text_C`, f.fecha || '', 'center', 6.5);
+          setText(`900_${r+58}_Text`, f.desc || '', 'left', 6.5);
+          setText(`900_${r+110}_Text_C`, f.ct || '', 'center', 6.5);
+          if (n(f.rec_in)) put(`901_${r}_S26Value`, money(f.rec_in));
+          if (n(f.rec_out)) put(`901_${r+53}_S26Value`, money(f.rec_out));
+          if (n(f.pri_in)) put(`902_${r}_S26Value`, money(f.pri_in));
+          if (n(f.pri_out)) put(`902_${r+53}_S26Value`, money(f.pri_out));
+          if (n(f.sec_in)) put(`903_${r}_S26Value`, money(f.sec_in));
+          if (n(f.sec_out)) put(`903_${r+53}_S26Value`, money(f.sec_out));
         });
-        if (filas.length > 52) throw new Error('El formulario S-26-S admite 52 movimientos por hoja. Hay ' + filas.length + '; divida el período antes de generar el PDF.');
 
-        // Totales de la página 1, en el orden oficial de las seis columnas.
+        // Totales de las seis columnas de la primera página.
         [
           ['901_53_S26TotalValue',sum.rec_in], ['901_106_S26TotalValue',sum.rec_out],
           ['902_53_S26TotalValue',sum.pri_in], ['902_106_S26TotalValue',sum.pri_out],
           ['903_53_S26TotalValue',sum.sec_in], ['903_106_S26TotalValue',sum.sec_out]
-        ].forEach(([k,v]) => set(k,money(v)));
+        ].forEach(([name,value]) => put(name,money(value)));
 
-        // Página 2: fecha del resumen y resumen de los tres fondos.
-        set('904_28_Text_C', d.fin_mes || '');
+        // Página 2: resumen de los tres fondos.
+        setText('904_28_Text_C', d.fin_mes || '', 'center', 7);
         const resumen = [
           [n(d.sa_rec),sum.rec_in,sum.rec_out,n(d.sa_rec)+sum.rec_in-sum.rec_out],
           [n(d.sa_pri),sum.pri_in,sum.pri_out,n(d.sa_pri)+sum.pri_in-sum.pri_out],
@@ -1823,43 +1853,31 @@
           ['904_33_S26Amount','904_34_S26TotalAmount','904_35_S26TotalAmount','904_36_S26TotalAmount'],
           ['904_38_S26Amount','904_39_S26TotalAmount','904_40_S26TotalAmount','904_41_S26TotalAmount']
         ];
-        resumen.forEach((fila,i) => fila.forEach((v,j) => set(camposResumen[i][j],money(v))));
-        set('904_42_S26TotalAmount', money(resumen.reduce((a,r)=>a+r[3],0)));
+        resumen.forEach((fila,i)=>fila.forEach((v,j)=>put(camposResumen[i][j],money(v))));
+        put('904_42_S26TotalAmount',money(resumen.reduce((a,r)=>a+r[3],0)));
 
-        // Conciliación de cuenta principal (bancaria).
+        // Conciliación bancaria de la cuenta principal.
         const b1=n(d.conc_b1), b2=n(d.conc_b2), b3=n(d.conc_b3);
         const b4=b1+b2+b3, b6=n(d.conc_b6), b7=n(d.conc_b7), b8=n(d.conc_b8), b9=b4-b6-b7-b8;
-        set('904_2_S26Amount',money(b1)); set('904_3_S26Amount',money(b2));
-        set('904_4_S26Amount',money(b3)); set('904_5_S26TotalAmount',money(b4));
-        // Los detalles de cheques pendientes no existen como campos en la aplicación actual.
-        for(let i=0;i<7;i++){ set(`904_${6+i*2}_Text`,''); set(`904_${7+i*2}_S26Amount`,''); }
-        set('904_20_S26TotalAmount',money(b6)); set('904_21_S26Amount',money(b7));
-        set('904_22_S26Amount',money(b8)); set('904_23_S26TotalAmount',money(b9));
+        [['904_2_S26Amount',b1],['904_3_S26Amount',b2],['904_4_S26Amount',b3],['904_5_S26TotalAmount',b4],['904_20_S26TotalAmount',b6],['904_21_S26Amount',b7],['904_22_S26Amount',b8],['904_23_S26TotalAmount',b9]].forEach(([k,v])=>put(k,money(v)));
+        for(let i=0;i<7;i++){setText(`904_${6+i*2}_Text`,'');}
 
-        // Conciliación de cuenta secundaria: se rellena si se han introducido datos.
-        set('904_43_Text_C','');
+        // Conciliación de la cuenta secundaria (si se usan esos campos en la aplicación).
         const s1=n(d.conc_s1), s2=n(d.conc_s2), s3=n(d.conc_s3), s4=s1+s2+s3;
         const s6=n(d.conc_s6), s7=n(d.conc_s7), s8=s4-s6-s7;
-        set('904_44_S26Amount',money(s1)); set('904_45_S26Amount',money(s2));
-        set('904_46_S26Amount',money(s3)); set('904_47_S26TotalAmount',money(s4));
-        // La aplicación no captura todavía descripción/importe por retirada individual.
-        ['904_48_Text','904_50_Text','904_52_Text'].forEach(k=>set(k,''));
-        ['904_49_S26Amount','904_51_S26Amount','904_53_S26Amount'].forEach(k=>set(k,''));
-        set('904_54_S26TotalAmount',money(s6)); set('904_55_S26Amount',money(s7));
-        set('904_56_S26TotalAmount',money(s8));
+        [['904_44_S26Amount',s1],['904_45_S26Amount',s2],['904_46_S26Amount',s3],['904_47_S26TotalAmount',s4],['904_54_S26TotalAmount',s6],['904_55_S26Amount',s7],['904_56_S26TotalAmount',s8]].forEach(([k,v])=>put(k,money(v)));
+        ['904_48_Text','904_50_Text','904_52_Text'].forEach(k=>setText(k,''));
 
-        // El bloque de caja de efectivo es alternativo a la conciliación bancaria y no
-        // se rellena con datos bancarios para evitar duplicar importes.
-        form.updateFieldAppearances();
-        form.flatten();
-        const bytes = await pdfDoc.save();
+        // Las anotaciones de formulario se dejan intactas; los textos se dibujan en
+        // las posiciones de sus widgets, evitando el desplazamiento de apariencias.
+        const bytes = await pdfDoc.save({updateFieldAppearances:false});
         const blob = new Blob([bytes], {type:'application/pdf'});
         const url = URL.createObjectURL(blob);
-        const a = document.createElement('a'); a.href=url;
+        const a=document.createElement('a'); a.href=url;
         a.download=`S-26-S_${(d.mes||'Mes')}_${(d.anio||new Date().getFullYear())}.pdf`;
         document.body.appendChild(a); a.click(); a.remove();
         setTimeout(()=>URL.revokeObjectURL(url),1500);
-        mostrarToast('PDF S-26-S generado con los campos oficiales. Revise los importes antes de firmar.');
+        mostrarToast('PDF S-26-S generado. Revise los importes y la correspondencia del período antes de firmar.');
       } catch(err) { console.error(err); alert('No se pudo generar el PDF: '+err.message); }
     }
 
