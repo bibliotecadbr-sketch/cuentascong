@@ -1849,15 +1849,20 @@
         const pageHeight = page1.getHeight();
         const font = await pdfDoc.embedFont(PDFLib.StandardFonts.Helvetica);
         const fontBold = await pdfDoc.embedFont(PDFLib.StandardFonts.HelveticaBold);
+        // Límites medidos directamente en las líneas verticales del PDF oficial.
+        // Se usan las seis celdas numéricas reales, sin invadir los espacios dobles
+        // que separan Entrada y Salida.
         const col = {
-          fecha: [20.515, 44.216], desc: [44.515, 231.734], ct: [232.133, 249.759],
-          rec_in: [252.448, 298.755], rec_out: [306.025, 352.332],
-          pri_in: [359.701, 406.008], pri_out: [413.577, 459.884],
-          sec_in: [467.253, 513.660], sec_out: [521.029, 567.336]
+          fecha: [19.92, 51.19], desc: [51.19, 232.03], ct: [232.03, 249.96],
+          rec_in: [249.96, 285.81], rec_out: [303.73, 339.69],
+          pri_in: [357.51, 393.36], pri_out: [411.39, 447.24],
+          sec_in: [465.06, 500.91], sec_out: [518.74, 554.69]
         };
-        const firstRowTop = 102.083;
-        const rowStep = 12.148;
-        const rowBaselineOffset = 10.2;
+        // Primera línea de movimientos: y=103.178 pt; separación real: 11.95 pt.
+        const firstRowTop = 103.18;
+        const rowStep = 11.95;
+        // Línea base dentro de la celda, dejando margen inferior y superior.
+        const rowBaselineOffset = 8.55;
         const drawCell = (text, bounds, top, opts={}) => {
           const value = String(text ?? '');
           if (!value) return;
@@ -1873,23 +1878,38 @@
           const y = pageHeight - (top + rowBaselineOffset);
           page1.drawText(value, {x, y, size, font: face, color: PDFLib.rgb(0,0,0)});
         };
-        const fmtPdf = value => n(value).toLocaleString('es-ES', {minimumFractionDigits:2, maximumFractionDigits:2});
+        // En cada importe, el formulario tiene dos casillas: la grande para
+        // unidades/parte entera y la estrecha contigua para los centavos.
+        // Nunca escribir el importe completo atravesando ambas casillas.
+        const amountCells = {
+          rec_in:  {integer:[249.96,285.81], cents:[285.81,303.73]},
+          rec_out: {integer:[303.73,339.69], cents:[339.69,357.51]},
+          pri_in:  {integer:[357.51,393.36], cents:[393.36,411.39]},
+          pri_out: {integer:[411.39,447.24], cents:[447.24,465.06]},
+          sec_in:  {integer:[465.06,500.91], cents:[500.91,518.74]},
+          sec_out: {integer:[518.74,554.69], cents:[554.69,572.50]}
+        };
+        const drawAmount = (value, cells, top, opts={}) => {
+          const amount = Math.round((Math.abs(n(value)) + Number.EPSILON) * 100);
+          const integerPart = Math.floor(amount / 100).toLocaleString('es-ES');
+          const decimalPart = String(amount % 100).padStart(2,'0');
+          const prefix = n(value) < 0 ? '-' : '';
+          drawCell(prefix + integerPart, cells.integer, top,
+            {size:opts.size || 6.2, bold:!!opts.bold, align:'right'});
+          drawCell(decimalPart, cells.cents, top,
+            {size:opts.size || 6.0, bold:!!opts.bold, align:'center'});
+        };
         filas.slice(0,52).forEach((f,i) => {
           const top = firstRowTop + i * rowStep;
           drawCell(f.fecha || '', col.fecha, top, {size:6.0, align:'center'});
           drawCell(f.desc || '', col.desc, top, {size:6.2});
           drawCell(f.ct || '', col.ct, top, {size:6.0, bold:true, align:'center'});
-          ['rec_in','rec_out','pri_in','pri_out','sec_in','sec_out'].forEach(k => {
-            if (n(f[k]) !== 0) drawCell(fmtPdf(f[k]), col[k], top, {size:6.2, align:'right'});
+          Object.keys(amountCells).forEach(k => {
+            if (n(f[k]) !== 0) drawAmount(f[k], amountCells[k], top, {size:6.2});
           });
         });
-        const totalTop = 725.186;
-        const totalBounds = {
-          rec_in:[252.747,301.842], rec_out:[306.523,355.718],
-          pri_in:[360.199,409.394], pri_out:[414.075,463.270],
-          sec_in:[467.751,516.946], sec_out:[521.528,570.723]
-        };
-        Object.keys(sum).forEach(k => drawCell(fmtPdf(sum[k]), totalBounds[k], totalTop, {size:6.4, bold:true, align:'right'}));
+        const totalTop = 725.20;
+        Object.keys(sum).forEach(k => drawAmount(sum[k], amountCells[k], totalTop, {size:6.2, bold:true}));
 
         const bytes = await pdfDoc.save();
         const blob = new Blob([bytes], {type:'application/pdf'});
